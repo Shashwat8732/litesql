@@ -553,7 +553,7 @@ class TableManager:
 
     def delete(self,table_name):
        table_file=f"{self.db_path}/{table_name}.json"
-       table_pickle=f"./Pickles/{table_name}_indexes.pkl"
+       table_pickle=f"{self.pickle_path}/{table_name}_indexes.pkl"
 
        if not os.path.exists(table_file):
           print("file not exits ❌")
