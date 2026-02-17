@@ -30,7 +30,7 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
   
-  const backendUrl = 'http://localhost:5001';
+  const backendUrl = 'https://litesql.onrender.com';
 
   // Check if already logged in
   useEffect(() => {
