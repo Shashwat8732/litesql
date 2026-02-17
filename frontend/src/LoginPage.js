@@ -14,7 +14,7 @@ function LoginPage({ onLogin }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5001';
+  const backendUrl = 'https://litesql.onrender.com';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
