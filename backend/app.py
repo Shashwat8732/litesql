@@ -9,7 +9,10 @@ app = Flask(__name__)
 
 # ✅ FIXED CORS Configuration
 CORS(app, 
-     resources={r"/api/*": {"origins": "*"}},
+     resources={r"/api/*": {"origins": [
+          "http://localhost:3000",
+          "https://litesql.vercel.app"
+     ]}},
      allow_headers=["Content-Type", "Authorization"],
      supports_credentials=True,
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
