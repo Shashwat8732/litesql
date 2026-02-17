@@ -160,6 +160,24 @@ def get_current_user(session):
 # PROTECTED ENDPOINTS
 # ============================================
 
+@app.route('/', methods=['GET'])
+def index():
+    return jsonify({
+        'name': '🗄️⚡ LiteSQL',
+        'status': 'running',
+        'message': 'LiteSQL API is live!',
+        'endpoints': {
+            'health': '/api/query/health',
+            'tables': '/api/query/tables',
+            'query': '/api/query',
+            'upload': '/api/upload',
+            'register': '/api/auth/register',
+            'login': '/api/auth/login'
+        }
+    })
+
+
+
 @app.route('/api/query/health', methods=['GET'])
 def health():
     return jsonify({
