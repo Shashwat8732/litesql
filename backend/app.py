@@ -212,7 +212,6 @@ def tables(session):
 @app.route('/api/upload', methods=['POST'])
 @require_auth
 def upload_file(session):
-    """Upload file for user"""
     try:
         if 'file' not in request.files:
             return jsonify({'success': False, 'error': 'No file provided'}), 400
@@ -236,6 +235,15 @@ def upload_file(session):
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], f"{user_id}_{filename}")
         file.save(filepath)
         
+        # ✅ Check if table exists BEFORE processing
+        table_file = f"./Data/{user_id}/{table_name}.json"
+        if not os.path.exists(table_file):
+            os.remove(filepath)
+            return jsonify({
+                'success': False,
+                'error': f"Table '{table_name}' does not exist! Create it first:\nCREATE TABLE {table_name} (col1 TYPE, col2 TYPE, ...)"
+            }), 400
+        
         print(f"\n{'='*60}")
         print(f"👤 User: {session['username']}")
         print(f"📁 File: {filename}")
@@ -243,8 +251,10 @@ def upload_file(session):
         
         start = time.time()
         
-        # Create user-specific table manager
-        user_tm = TableManager(db_path=f"./Data/{user_id}", pickle_path=f"./Pickles/{user_id}")
+        user_tm = TableManager(
+            db_path=f"./Data/{user_id}",
+            pickle_path=f"./Pickles/{user_id}"
+        )
         
         if filename.endswith('.csv'):
             print(f"📝 Processing CSV...")
@@ -289,12 +299,9 @@ def upload_file(session):
         print(f"❌ Upload error: {e}")
         import traceback
         traceback.print_exc()
-        
         if 'filepath' in locals() and os.path.exists(filepath):
             os.remove(filepath)
-        
         return jsonify({'success': False, 'error': str(e)}), 500
-
 
 @app.route('/api/query', methods=['POST'])
 @require_auth
