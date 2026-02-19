@@ -13,6 +13,7 @@ except:
 
 from Storage.auth import AuthManager
 
+auth = AuthManager()
 app = Flask(__name__)
 
 # ✅ FIXED CORS Configuration
