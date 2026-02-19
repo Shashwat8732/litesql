@@ -9,14 +9,20 @@ import json
 from datetime import datetime, timedelta
 
 # Check environment - Koyeb or local
-if os.environ.get('KOYEB_PUBLIC_DOMAIN'):
+if os.environ.get('FLY_APP_NAME'):
+    # Fly.io - persistent volume
+    DATA_DIR = "/data"
+    PICKLE_DIR = "/data/Pickles"
+elif os.environ.get('KOYEB_PUBLIC_DOMAIN'):
+    # Koyeb - persistent volume
     DATA_DIR = "/data"
     PICKLE_DIR = "/data/Pickles"
 else:
+    # Local development
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     DATA_DIR = os.path.join(BASE_DIR, "Data")
     PICKLE_DIR = os.path.join(BASE_DIR, "Pickles")
-
+    
 class AuthManager:
     def __init__(self, users_file=None):
         if users_file is None:
