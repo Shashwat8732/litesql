@@ -5,15 +5,19 @@ import os
 import json
 from werkzeug.utils import secure_filename
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except:
+    pass
+
+from Storage.auth import AuthManager
+
 app = Flask(__name__)
 
 # ✅ FIXED CORS Configuration
 CORS(app, 
-     resources={r"/api/*": {"origins": [
-          "http://localhost:3000",
-          "https://litesql.vercel.app",
-          "https://*.vercel.app"
-     ]}},
+     resources={r"/api/*": {"origins": "*"}},
      allow_headers=["Content-Type", "Authorization"],
      supports_credentials=True,
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
