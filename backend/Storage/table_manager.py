@@ -9,27 +9,14 @@ from functools import cmp_to_key
 
 class TableManager:
     def __init__(self,db_path="./Data",pickle_path="./Pickles"):
-        if os.environ.get('FLY_APP_NAME'):
-        # Fly.io - persistent volume
+
         if not os.path.isabs(db_path):
-            db_path = f"/data/{db_path.split('/')[-1]}"
-        if not os.path.isabs(pickle_path):
-            pickle_path = f"/data/Pickles/{pickle_path.split('/')[-1]}"
-    elif os.environ.get('KOYEB_PUBLIC_DOMAIN'):
-        # Koyeb - persistent volume
-        if not os.path.isabs(db_path):
-            db_path = f"/data/{db_path.split('/')[-1]}"
-        if not os.path.isabs(pickle_path):
-            pickle_path = f"/data/Pickles/{pickle_path.split('/')[-1]}"
-    else:
-        # Local - absolute paths
-        if not os.path.isabs(db_path):
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            db_path = os.path.join(base_dir, db_path.lstrip('./'))
-        
-        if not os.path.isabs(pickle_path):
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            pickle_path = os.path.join(base_dir, pickle_path.lstrip('./'))
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        db_path = os.path.join(base_dir, db_path.lstrip('./'))
+    
+    if not os.path.isabs(pickle_path):
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        pickle_path = os.path.join(base_dir, pickle_path.lstrip('./'))
     
     # Set paths
     self.db_path = db_path
@@ -46,6 +33,9 @@ class TableManager:
         print(f"folder {pickle_path} ready 👍")
     
     self.column_order = {}
+
+        
+    
         
 
       
