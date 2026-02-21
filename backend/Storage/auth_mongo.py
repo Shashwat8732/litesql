@@ -10,7 +10,8 @@ from pymongo import MongoClient
 
 class AuthManager:
     def __init__(self):
-        mongo_url = os.environ.get('MONGO_URL', '')
+        mongo_url = mongodb+srv://shashwatraj8732_db_user:v54QOizvmTfolzYo
+@litesql.ayhqzuw.mongodb.net/?appName=litesql
         
         if not mongo_url:
             print("❌ MONGO_URL not set!")
