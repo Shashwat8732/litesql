@@ -5,13 +5,7 @@ import os
 import json
 from werkzeug.utils import secure_filename
 
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except:
-    pass
-
-from Storage.auth import AuthManager
+from Storage.auth_db import AuthManager
 
 auth = AuthManager()
 app = Flask(__name__)
@@ -36,11 +30,6 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 print("\n" + "="*70)
 print("🚀 LiteSQL Bridge - With Authentication")
 print("="*70)
-
-# ✅ Import auth
-from Storage.auth import AuthManager
-auth = AuthManager()
-print("✅ Auth system loaded")
 
 # Import from main.py
 try:
@@ -416,7 +405,6 @@ if __name__ == '__main__':
     print("="*70)
     print()
     
-port = int(os.environ.get('PORT', 5001))
-app.run(host='0.0.0.0', port=port, debug=False)
+app.run(host='0.0.0.0', port=10000, debug=False)
 
 
