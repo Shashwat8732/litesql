@@ -5,7 +5,7 @@ import os
 import json
 from werkzeug.utils import secure_filename
 
-from Storage.auth_db import AuthManager
+from Storage.auth_mongo import AuthManager
 
 auth = AuthManager()
 app = Flask(__name__)
