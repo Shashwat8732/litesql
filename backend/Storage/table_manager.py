@@ -10,29 +10,29 @@ from functools import cmp_to_key
 class TableManager:
     def __init__(self,db_path="./Data",pickle_path="./Pickles"):
 
-        if not os.path.isabs(db_path):
+      if not os.path.isabs(db_path):
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         db_path = os.path.join(base_dir, db_path.lstrip('./'))
     
-    if not os.path.isabs(pickle_path):
+      if not os.path.isabs(pickle_path):
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         pickle_path = os.path.join(base_dir, pickle_path.lstrip('./'))
     
     # Set paths
-    self.db_path = db_path
-    self.pickle_path = pickle_path
-    self.memory_indexes = {}
+      self.db_path = db_path
+      self.pickle_path = pickle_path
+      self.memory_indexes = {}
     
     # Create directories
-    if not os.path.exists(db_path):
+      if not os.path.exists(db_path):
         os.makedirs(db_path)
         print(f"folder {db_path} ready 👍")
     
-    if not os.path.exists(pickle_path):
+      if not os.path.exists(pickle_path):
         os.makedirs(pickle_path)
         print(f"folder {pickle_path} ready 👍")
     
-    self.column_order = {}
+      self.column_order = {}
 
         
     
