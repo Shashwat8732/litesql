@@ -1,7 +1,3 @@
-"""
-Storage/persistent_table_manager.py - Wrapper with auto-save to MongoDB
-"""
-
 from .table_manager import TableManager
 from .table_storage_mongo import MongoTableStorage
 import json
@@ -14,7 +10,7 @@ class PersistentTableManager(TableManager):
         self.user_id = user_id
         self.mongo = MongoTableStorage()
         
-        if user_id and self.mongo.client:
+        if user_id and self.mongo and self.mongo.client:
             self._load_all_from_mongo()
     
     def _load_all_from_mongo(self):
@@ -27,72 +23,111 @@ class PersistentTableManager(TableManager):
             table_file = f"{self.db_path}/{table['name']}.json"
             os.makedirs(self.db_path, exist_ok=True)
             
+            # Save with indexes structure
+            table_data = {
+                "columns": table['columns'],
+                "rows": table['rows'],
+                "indexes": table.get('indexes', {"hashing": [], "b_tree": []})
+            }
+            
             with open(table_file, 'w') as f:
-                json.dump({"columns": table['columns'], "rows": table['rows']}, f)
+                json.dump(table_data, f, indent=2)
             
             print(f"  ✅ {table['name']} ({len(table['rows'])} rows)")
     
     def _sync_to_mongo(self, table_name):
         """Save to MongoDB after change"""
-        if not self.user_id or not self.mongo.client:
+        if not self.user_id or not self.mongo or not self.mongo.client:
             return
         
         table_file = f"{self.db_path}/{table_name}.json"
         
         if os.path.exists(table_file):
-            with open(table_file, 'r') as f:
-                data = json.load(f)
-            self.mongo.save_table(self.user_id, table_name, data)
+            try:
+                with open(table_file, 'r') as f:
+                    data = json.load(f)
+                self.mongo.save_table(self.user_id, table_name, data)
+            except Exception as e:
+                print(f"⚠️ MongoDB sync error for {table_name}: {e}")
     
-    # Override methods to add auto-save
+    # Override all modification methods
     
     def create_table(self, table_name, columns):
+        """Create table + auto-save"""
         result = super().create_table(table_name, columns)
         self._sync_to_mongo(table_name)
         return result
     
     def insert_rows(self, table_name, values):
+        """Insert rows + auto-save"""
         result = super().insert_rows(table_name, values)
         self._sync_to_mongo(table_name)
         return result
     
+    def insert_rows_csv(self, table_name, values):
+        """Insert from CSV + auto-save"""
+        result = super().insert_rows_csv(table_name, values)
+        self._sync_to_mongo(table_name)
+        return result
+    
+    def insert_col(self, table_name, values):
+        """Insert columns + auto-save"""
+        result = super().insert_col(table_name, values)
+        self._sync_to_mongo(table_name)
+        return result
+    
+    def addmore_col(self, table_name, values):
+        """Add more columns + auto-save"""
+        result = super().addmore_col(table_name, values)
+        self._sync_to_mongo(table_name)
+        return result
+    
+    def update_col(self, table_name, col, col_type):
+        """Update column type + auto-save"""
+        result = super().update_col(table_name, col, col_type)
+        self._sync_to_mongo(table_name)
+        return result
+    
     def update_rows(self, table_name, upd_col, upd_value, where_col, op, where_value):
+        """Update rows + auto-save"""
         result = super().update_rows(table_name, upd_col, upd_value, where_col, op, where_value)
         self._sync_to_mongo(table_name)
         return result
     
     def delete_row(self, table_name, col, op, value):
+        """Delete rows + auto-save"""
         result = super().delete_row(table_name, col, op, value)
         self._sync_to_mongo(table_name)
         return result
     
-    def addmore_col(self, table_name, values):
-        result = super().addmore_col(table_name, values)
-        self._sync_to_mongo(table_name)
-        return result
-    
-    def delete(self, table_name):
-        result = super().delete(table_name)
-        if self.user_id and self.mongo.client:
-            self.mongo.delete_table(self.user_id, table_name)
-        return result
-    
-    def read_csv(self, table_name, csv_file):
-        result = super().read_csv(table_name, csv_file)
-        self._sync_to_mongo(table_name)
-        return result
-    
-    def insert_from_excel(self, table_name, excel_file, sheet_name=None):
-        result = super().insert_from_excel(table_name, excel_file, sheet_name)
-        self._sync_to_mongo(table_name)
-        return result
-    
     def delete_all_rows(self, table_name):
+        """Delete all rows + auto-save"""
         result = super().delete_all_rows(table_name)
         self._sync_to_mongo(table_name)
         return result
     
     def delete_all_col(self, table_name):
+        """Delete all columns + auto-save"""
         result = super().delete_all_col(table_name)
+        self._sync_to_mongo(table_name)
+        return result
+    
+    def delete(self, table_name):
+        """Drop table + delete from MongoDB"""
+        result = super().delete(table_name)
+        if self.user_id and self.mongo and self.mongo.client:
+            self.mongo.delete_table(self.user_id, table_name)
+            print(f"🗑️  Deleted from MongoDB: {table_name}")
+        return result
+    
+    def read_csv(self, table_name, csv_file):
+        """Read CSV + auto-save"""
+        result = super().read_csv(table_name, csv_file)
+        self._sync_to_mongo(table_name)
+        return result
+    
+    def insert_from_excel(self, table_name, excel_file, sheet_name=None):
+        """Insert from Excel + auto-save"""
+        result = super().insert_from_excel(table_name, excel_file, sheet_name)
         self._sync_to_mongo(table_name)
         return result
