@@ -186,7 +186,7 @@ def run_sql(sql_command):
 def run_sql_for_user(sql_command, user_id):
     """Execute SQL for specific user"""
     # Create user-specific table manager
-    user_tm = TableManager(db_path=f"./Data/{user_id}", pickle_path=f"./Pickles/{user_id},user_id=user_id")
+    user_tm = TableManager(db_path=f"./Data/{user_id}", pickle_path=f"./Pickles/{user_id}",user_id=user_id)
     
     parsed = parse_sql(sql_command)
     
