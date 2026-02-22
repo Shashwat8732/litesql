@@ -1,3 +1,8 @@
+"""
+Storage/persistent_table_manager.py - Wrapper with auto-save to MongoDB
+Automatically syncs all table operations to MongoDB Atlas
+"""
+
 from .table_manager import TableManager
 from .table_storage_mongo import MongoTableStorage
 import json
@@ -65,7 +70,7 @@ class PersistentTableManager(TableManager):
         return result
     
     def insert_rows_csv(self, table_name, values):
-        """Insert from CSV + auto-save"""
+        """Insert from CSV (internal) + auto-save"""
         result = super().insert_rows_csv(table_name, values)
         self._sync_to_mongo(table_name)
         return result
