@@ -72,8 +72,19 @@ def require_auth(f):
 
 
 def get_tables_list(user_id):
-    """Get user's tables"""
     try:
+        from Storage.table_storage_mongo import MongoTableStorage
+        mongo_storage = MongoTableStorage()
+        
+        if mongo_storage.client:
+            tables = mongo_storage.get_all_tables(user_id)
+            return [{
+                'name': t['name'],
+                'columns': len(t['columns']),
+                'rows': len(t['rows']),
+                'icon': '📊'
+            } for t in tables]
+        
         data_path = f"./Data/{user_id}"
         if not os.path.exists(data_path):
             return []
@@ -85,13 +96,11 @@ def get_tables_list(user_id):
                 try:
                     with open(f"{data_path}/{file}", 'r') as f:
                         data = json.load(f)
-                        col_count = len(data.get('columns', {}))
-                        row_count = len(data.get('rows', []))
                     
                     tables.append({
                         'name': table_name,
-                        'columns': col_count,
-                        'rows': row_count,
+                        'columns': len(data.get('columns', {})),
+                        'rows': len(data.get('rows', [])),
                         'icon': '📊'
                     })
                 except:
@@ -101,7 +110,6 @@ def get_tables_list(user_id):
     except Exception as e:
         print(f"Error getting tables: {e}")
         return []
-
 
 # ============================================
 # AUTH ENDPOINTS
