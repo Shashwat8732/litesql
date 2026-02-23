@@ -142,9 +142,9 @@ class PersistentTableManager(TableManager):
     
     def read_csv(self, table_name, csv_file):
         """Read CSV + auto-save with verification"""
-       print(f"🔵 read_csv called: table={table_name}, file={csv_file}")
+        print(f"🔵 read_csv called: table={table_name}, file={csv_file}")
     
-       try:
+        try:
            # Call parent method
            result = super().read_csv(table_name, csv_file)
         
@@ -164,11 +164,11 @@ class PersistentTableManager(TableManager):
           print(f"✅ CSV import and MongoDB sync completed")
           return result
         
-     except Exception as e:
-        print(f"❌ CSV read error: {e}")
-        import traceback
-        traceback.print_exc()
-        raise
+        except Exception as e:
+           print(f"❌ CSV read error: {e}")
+           import traceback
+           traceback.print_exc()
+           raise
     def insert_from_excel(self, table_name, excel_file, sheet_name=None):
         result = super().insert_from_excel(table_name, excel_file, sheet_name)
         self._sync_to_mongo(table_name)
