@@ -20,26 +20,37 @@ class PersistentTableManager(TableManager):
     
     def _load_all_from_mongo(self):
         """Load all tables from MongoDB on init"""
-        print(f"🔄 Loading from MongoDB: {self.user_id}")
-        
-        tables = self.mongo.get_all_tables(self.user_id)
-        
-        for table in tables:
-            table_file = f"{self.db_path}/{table['name']}.json"
-            os.makedirs(self.db_path, exist_ok=True)
-            
-            # Save with indexes structure
-            table_data = {
-                "columns": table['columns'],
-                "rows": table['rows'],
-                "indexes": table.get('indexes', {"hashing": [], "b_tree": []})
-            }
-            
-            with open(table_file, 'w') as f:
-                json.dump(table_data, f, indent=2)
-            
-            print(f"  ✅ {table['name']} ({len(table['rows'])} rows)")
+    print(f"🔄 Loading tables from MongoDB for user: {self.user_id}")
     
+    if not self.mongo or not self.mongo.client:
+        print("⚠️ MongoDB not connected, skipping load")
+        return
+    
+    tables = self.mongo.get_all_tables(self.user_id)
+    print(f"📊 Found {len(tables)} tables to load")
+    
+    for table in tables:
+        table_name = table['name']
+        print(f"  Loading: {table_name}")
+        
+        table_file = f"{self.db_path}/{table_name}.json"
+        os.makedirs(self.db_path, exist_ok=True)
+        
+        # Save with proper structure
+        table_data = {
+            "columns": table.get('columns', {}),
+            "rows": table.get('rows', []),
+            "indexes": table.get('indexes', {"hashing": [], "b_tree": []})
+        }
+        
+        with open(table_file, 'w') as f:
+            json.dump(table_data, f, indent=2)
+        
+        # Also load indexes
+        if table_name not in self.memory_indexes:
+            self._load_indexes(table_name)
+        
+        print(f"  ✅ Loaded: {table_name} ({len(table.get('rows', []))} rows)")
     def _sync_to_mongo(self, table_name):
         """Save to MongoDB after change"""
         if not self.user_id or not self.mongo or not self.mongo.client:
@@ -65,10 +76,19 @@ class PersistentTableManager(TableManager):
     
     def insert_rows(self, table_name, values):
         """Insert rows + auto-save"""
-        result = super().insert_rows(table_name, values)
-        self._sync_to_mongo(table_name)
-        return result
+       print(f"🔵 PersistentTableManager.insert_rows called")
+       print(f"   table: {table_name}")
+       print(f"   values: {values}")
+       print(f"   user_id: {self.user_id}")
     
+       result = super().insert_rows(table_name, values)
+    
+       print(f"🔵 Parent insert_rows completed, now syncing to MongoDB...")
+       self._sync_to_mongo(table_name)
+       print(f"🔵 MongoDB sync completed")
+    
+       return result
+       
     def insert_rows_csv(self, table_name, values):
         """Insert from CSV (internal) + auto-save"""
         result = super().insert_rows_csv(table_name, values)
