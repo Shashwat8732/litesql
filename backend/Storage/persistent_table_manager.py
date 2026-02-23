@@ -143,33 +143,48 @@ class PersistentTableManager(TableManager):
     def read_csv(self, table_name, csv_file):
         """Read CSV + auto-save with verification"""
         print(f"🔵 read_csv called: table={table_name}, file={csv_file}")
-    
+        
         try:
-           # Call parent method
-           result = super().read_csv(table_name, csv_file)
-        
-          print(f"🔵 CSV read completed, checking file...")
-        
-          # Verify file was updated
-          table_file = f"{self.db_path}/{table_name}.json"
-          if os.path.exists(table_file):
-            with open(table_file, 'r') as f:
-                data = json.load(f)
-            print(f"🔵 File has {len(data.get('rows', []))} rows")
-        
-          # Force sync to MongoDB
-          print(f"🔵 Syncing to MongoDB...")
-          self._sync_to_mongo(table_name)
-        
-          print(f"✅ CSV import and MongoDB sync completed")
-          return result
-        
+            # Call parent method
+            result = super().read_csv(table_name, csv_file)
+            
+            print(f"🔵 CSV read completed, checking file...")
+            
+            # Verify file was updated
+            table_file = f"{self.db_path}/{table_name}.json"
+            if os.path.exists(table_file):
+                with open(table_file, 'r') as f:
+                    data = json.load(f)
+                print(f"🔵 File has {len(data.get('rows', []))} rows")
+            
+            # Force sync to MongoDB
+            print(f"🔵 Syncing to MongoDB...")
+            self._sync_to_mongo(table_name)
+            
+            print(f"✅ CSV import and MongoDB sync completed")
+            return result
+            
         except Exception as e:
-           print(f"❌ CSV read error: {e}")
-           import traceback
-           traceback.print_exc()
-           raise
+            print(f"❌ CSV read error: {e}")
+            import traceback
+            traceback.print_exc()
+            raise
+    
     def insert_from_excel(self, table_name, excel_file, sheet_name=None):
-        result = super().insert_from_excel(table_name, excel_file, sheet_name)
-        self._sync_to_mongo(table_name)
-        return result
+        """Insert from Excel + auto-save"""
+        print(f"🔵 insert_from_excel called: table={table_name}")
+        
+        try:
+            result = super().insert_from_excel(table_name, excel_file, sheet_name)
+            
+            print(f"🔵 Excel read completed, syncing to MongoDB...")
+            self._sync_to_mongo(table_name)
+            
+            print(f"✅ Excel import and MongoDB sync completed")
+            return result
+            
+        except Exception as e:
+            print(f"❌ Excel read error: {e}")
+            import traceback
+            traceback.print_exc()
+            raise
