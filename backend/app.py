@@ -37,7 +37,7 @@ print("="*70)
 # Import from main.py
 try:
     from main import run_sql_for_user, pr
-    from Storage.table_manager import TableManager
+    from Storage.persistent_table_manager import PersistentTableManager as TableManager
     print("✅ Imported from main.py")
 except ImportError as e:
     print(f"❌ Import failed: {e}")
