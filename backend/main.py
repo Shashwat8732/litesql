@@ -33,7 +33,7 @@ def execute_command(tm, parsed):
         return None
 
     elif cmd_type == "CSV":
-        tm.read_csv(parsed["csv_file"], parsed["table"])
+        tm.read_csv(parsed["table"], parsed["csv_file"])
         return None
 
     elif cmd_type == "EXCEL":
