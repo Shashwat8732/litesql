@@ -276,7 +276,8 @@ def upload_file(session):
         
         user_tm = TableManager(
             db_path=f"./Data/{user_id}",
-            pickle_path=f"./Pickles/{user_id}"
+            pickle_path=f"./Pickles/{user_id}",
+            user_id=user_id
         )
         
         if filename.endswith('.csv'):
