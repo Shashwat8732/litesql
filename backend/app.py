@@ -72,21 +72,36 @@ def require_auth(f):
 
 
 def get_tables_list(user_id):
+    """Get user's tables from MongoDB"""
     try:
         from Storage.table_storage_mongo import MongoTableStorage
         mongo_storage = MongoTableStorage()
         
+        print(f"🔍 Getting tables for user: {user_id}")
+        
         if mongo_storage.client:
             tables = mongo_storage.get_all_tables(user_id)
-            return [{
-                'name': t['name'],
-                'columns': len(t['columns']),
-                'rows': len(t['rows']),
-                'icon': '📊'
-            } for t in tables]
+            print(f"📊 MongoDB returned {len(tables)} tables")
+            
+            result = []
+            for t in tables:
+                table_info = {
+                    'name': t['name'],
+                    'columns': len(t.get('columns', {})),
+                    'rows': len(t.get('rows', [])),
+                    'icon': '📊'
+                }
+                print(f"  - {table_info}")
+                result.append(table_info)
+            
+            return result
         
+        print("⚠️ MongoDB not connected, checking local files")
+        
+        # Fallback to local
         data_path = f"./Data/{user_id}"
         if not os.path.exists(data_path):
+            print(f"⚠️ No data path: {data_path}")
             return []
         
         tables = []
@@ -103,12 +118,15 @@ def get_tables_list(user_id):
                         'rows': len(data.get('rows', [])),
                         'icon': '📊'
                     })
-                except:
-                    pass
+                except Exception as e:
+                    print(f"⚠️ Error reading {file}: {e}")
         
         return tables
+        
     except Exception as e:
-        print(f"Error getting tables: {e}")
+        print(f"❌ Error in get_tables_list: {e}")
+        import traceback
+        traceback.print_exc()
         return []
 
 # ============================================
