@@ -148,42 +148,42 @@ class TableManager:
             if len(keys) > 3:
                 print(f"      ... ({len(keys) - 3} more)")
     
-       print(f"\n{'='*60}\n")
+         print(f"\n{'='*60}\n")
     
-       result = {
+         result = {
          "table": table,
          "hash_indexes": [],
          "btree_indexes": []
      }
     
     
-    for col, index in hash_indexes.items():
-        entries = []
-        for key, value in list(index.items())[:10]:
+        for col, index in hash_indexes.items():
+          entries = []
+          for key, value in list(index.items())[:10]:
             entries.append({"key": str(key), "value": str(value)})
         
-        result["hash_indexes"].append({
+          result["hash_indexes"].append({
             "column": col,
             "total": len(index),
             "entries": entries
         })
     
-    for col, index in btree_indexes.items():
-        keys = index.get("keys", [])
-        values = index.get("values", {})
+        for col, index in btree_indexes.items():
+           keys = index.get("keys", [])
+           values = index.get("values", {})
         
-        entries = []
-        for key in keys[:10]:
-            val = values.get(key, [])
-            entries.append({"key": str(key), "value": str(val)})
+           entries = []
+           for key in keys[:10]:
+             val = values.get(key, [])
+             entries.append({"key": str(key), "value": str(val)})
         
-        result["btree_indexes"].append({
+           result["btree_indexes"].append({
             "column": col,
             "total": len(keys),
             "entries": entries
         })
     
-    return result
+        return result
        
 
     
