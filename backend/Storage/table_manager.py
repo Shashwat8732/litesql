@@ -110,83 +110,83 @@ class TableManager:
        with open (index_file,"wb") as f:
           pickle.dump(self.memory_indexes[table_name],f)       
 
-    def load_pickle(self, table):
-        pickle_file = f"{self.pickle_path}/{table}_indexes.pkl"
-        if not os.path.exists(pickle_file):
-                print(f"❌ Pickle file not found for table '{table}'")
-                return None
+    def load_pickle(self,table):
+       pickle_file = f"{self.pickle_path}/{table}_indexes.pkl"
+       if not os.path.exists(pickle_file):
+        print(f"❌ Pickle file not found for table '{table}'")
+        return None
     
-        with open(pickle_file, "rb") as f:
-                indexes = pickle.load(f)
+       with open(pickle_file, "rb") as f:
+        indexes = pickle.load(f)
     
         print(f"\n{'='*60}")
-        print(f"📦 PICKLE FILE: {table}_indexes.pkl")
-        print(f"{'='*60}")
+       print(f"📦 PICKLE FILE: {table}_indexes.pkl")
+       print(f"{'='*60}")
     
-        hash_indexes = indexes.get("hash", {})
-        print(f"\n🚀 Hash Indexes ({len(hash_indexes)}):")
-        for col, index in hash_indexes.items():
-            print(f"   {col}: {len(index)} entries")
-            if index:
-               sample = list(index.items())[:3]
-               for key, value in sample:
-                  print(f"      {key} → {value}")
-               if len(index) > 3:
-                  print(f"      ... ({len(index) - 3} more)")
-    
+       hash_indexes = indexes.get("hash", {})
+       print(f"\n🚀 Hash Indexes ({len(hash_indexes)}):")
+       for col, index in hash_indexes.items():
+        print(f"   {col}: {len(index)} entries")
+        if index:
+            sample = list(index.items())[:3]
+            for key, value in sample:
+                print(f"      {key} → {value}")
+            if len(index) > 3:
+                print(f"      ... ({len(index) - 3} more)")
+      
         btree_indexes = indexes.get("b_tree", {})
-        print(f"\n🌳 B-Tree Indexes ({len(btree_indexes)}):")
-        for col, index in btree_indexes.items():
-           keys = index.get("keys", [])
-           values = index.get("values", {})
-           print(f"   {col}: {len(keys)} keys")
-           if keys:
-              print(f"      Keys: {keys[:5]}{'...' if len(keys) > 5 else ''}")
-              for key in keys[:3]:
-                 val = values.get(key, [])
-                 print(f"      {key} → {val}")
-              if len(keys) > 3:
-                  print(f"      ... ({len(keys) - 3} more)")
+       print(f"\n🌳 B-Tree Indexes ({len(btree_indexes)}):")
+       for col, index in btree_indexes.items():
+        keys = index.get("keys", [])
+        values = index.get("values", {})  # ← GET VALUES!
+        print(f"   {col}: {len(keys)} keys")
+        if keys:
+            print(f"      Keys: {keys[:5]}{'...' if len(keys) > 5 else ''}")
+            for key in keys[:3]:
+                val = values.get(key, [])
+                print(f"      {key} → {val}")
+            if len(keys) > 3:
+                print(f"      ... ({len(keys) - 3} more)")
     
-        print(f"\n{'='*60}\n")
+       print(f"\n{'='*60}\n")
     
-   
-        result = {
-          "table": table,
-          "hash_indexes": [],
-          "btree_indexes": []
+       result = {
+        "table": table,
+        "hash_indexes": [],
+        "btree_indexes": []
     }
     
-    
-        for col, index in hash_indexes.items():
-            entries = []
-            for key, value in list(index.items())[:10]:
-                entries.append({"key": str(key), "value": str(value)})
+    # Hash indexes
+       for col, index in hash_indexes.items():
+        entries = []
+        for key, value in list(index.items())[:10]:
+            entries.append({"key": str(key), "value": str(value)})
         
-            result["hash_indexes"].append({
-               "column": col,
-               "total": len(index),
-               "entries": entries
+        result["hash_indexes"].append({
+            "column": col,
+            "total": len(index),
+            "entries": entries
         })
     
-   
-        for col, index in btree_indexes.items():
-            keys = index.get("keys", [])
-            values = index.get("values", {})
+    # B-tree indexes
+       for col, index in btree_indexes.items():
+        keys = index.get("keys", [])
+        values = index.get("values", {}) 
         
-            entries = []
-            for key in keys[:10]:
-                val = values.get(key, [])
-                entries.append({"key": str(key), "value": str(val)})
+        entries = []
+        for key in keys[:10]:
+            val = values.get(key, []) 
+            entries.append({"key": str(key), "value": str(val)})
         
-            result["btree_indexes"].append({
-               "column": col,
-               "total": len(keys),
-               "entries": entries
+        result["btree_indexes"].append({
+            "column": col,
+            "total": len(keys),
+            "entries": entries
         })
     
-        return result
+       return result  
         
+          
         
     def _add_to_index(self,table_name,values,save_to_disk=True):
        table_file = f"{self.db_path}/{table_name}.json"
