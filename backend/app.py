@@ -395,9 +395,9 @@ def query(session):
                  for idx in result_data['hash_indexes']:
                       formatted += f"   {idx['column']}: {idx['total']} entries\n"
                       for i, entry in enumerate(idx['entries'][:3]):
-                 formatted += f"      {entry['key']} → {entry['value'][:50]}...\n" if len(entry['value']) > 50 else f"      {entry['key']} → {entry['value']}\n"
-                 if idx['total'] > 3:
-                     formatted += f"      ... ({idx['total'] - 3} more)\n"
+                          formatted += f"      {entry['key']} → {entry['value'][:50]}...\n" if len(entry['value']) > 50 else f"      {entry['key']} → {entry['value']}\n"
+                          if idx['total'] > 3:
+                              formatted += f"      ... ({idx['total'] - 3} more)\n"
         
        
                  formatted += f"\n🌳 B-Tree Indexes ({len(result_data['btree_indexes'])}):\n"
@@ -406,7 +406,7 @@ def query(session):
                       for i, entry in enumerate(idx['entries'][:3]):
                            formatted += f"      {entry['key']} → {entry['value'][:50]}...\n" if len(entry['value']) > 50 else f"      {entry['key']} → {entry['value']}\n"
                       if idx['total'] > 3:
-                          formatted += f"      ... ({idx['total'] - 3} more)\n"
+                           formatted += f"      ... ({idx['total'] - 3} more)\n"
         
                  formatted += f"\n{'='*60}"
         
@@ -425,9 +425,9 @@ def query(session):
              print(f"   Keys: {list(result_data.keys())}")
              print(f"{'='*60}\n")
              return jsonify({
-              'success': True,
-              'data': result_data,
-              'executionTime': exec_time
+               'success': True,
+               'data': result_data,
+               'executionTime': exec_time
     })
 
 
