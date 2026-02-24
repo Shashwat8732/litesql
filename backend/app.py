@@ -383,53 +383,23 @@ def query(session):
             })
         
         elif isinstance(result_data, dict):
-             # Check if it's SHOW PICKLE result
-             if 'hash_indexes' in result_data and 'btree_indexes' in result_data:
-                 # Format as readable text
-                 formatted = f"\n{'='*60}\n"
-                 formatted += f"📦 PICKLE FILE: {result_data['table']}_indexes.pkl\n"
-                 formatted += f"{'='*60}\n\n"
+            print(f"   Data type: dict")
+            print(f"   Keys: {list(result_data.keys())}")
+            print(f"{'='*60}\n")
+            return jsonify({
+                'success': True,
+                'data': result_data,
+                'executionTime': exec_time
+            })
         
-                 # Hash Indexes
-                 formatted += f"🚀 Hash Indexes ({len(result_data['hash_indexes'])}):\n"
-                 for idx in result_data['hash_indexes']:
-                      formatted += f"   {idx['column']}: {idx['total']} entries\n"
-                      for i, entry in enumerate(idx['entries'][:3]):
-                          formatted += f"      {entry['key']} → {entry['value'][:50]}...\n" if len(entry['value']) > 50 else f"      {entry['key']} → {entry['value']}\n"
-                          if idx['total'] > 3:
-                              formatted += f"      ... ({idx['total'] - 3} more)\n"
-        
-       
-                 formatted += f"\n🌳 B-Tree Indexes ({len(result_data['btree_indexes'])}):\n"
-                 for idx in result_data['btree_indexes']:
-                      formatted += f"   {idx['column']}: {idx['total']} keys\n"
-                      for i, entry in enumerate(idx['entries'][:3]):
-                           formatted += f"      {entry['key']} → {entry['value'][:50]}...\n" if len(entry['value']) > 50 else f"      {entry['key']} → {entry['value']}\n"
-                      if idx['total'] > 3:
-                           formatted += f"      ... ({idx['total'] - 3} more)\n"
-        
-                 formatted += f"\n{'='*60}"
-        
-                 print(f"   Pickle data formatted")
-                 print(f"{'='*60}\n")
-        
-                 return jsonify({
-                    'success': True,
-                    'message': formatted,
-                    'data': result_data,
-                    'executionTime': exec_time
-        })
-    
-   
-             print(f"   Data type: dict")
-             print(f"   Keys: {list(result_data.keys())}")
-             print(f"{'='*60}\n")
-             return jsonify({
-               'success': True,
-               'data': result_data,
-               'executionTime': exec_time
-    })
-
+        else:
+            print(f"{'='*60}\n")
+            return jsonify({
+                'success': True,
+                'message': f'{cmd_type} operation completed',
+                'executionTime': exec_time
+            })
+             
 
              
             
