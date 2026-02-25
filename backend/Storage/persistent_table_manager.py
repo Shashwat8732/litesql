@@ -1,7 +1,3 @@
-"""
-Storage/persistent_table_manager.py - Wrapper with auto-save to MongoDB
-"""
-
 from .table_manager import TableManager
 from .table_storage_mongo import MongoTableStorage
 import json
