@@ -191,10 +191,10 @@ def run_sql_for_user(sql_command, user_id):
     parsed = parse_sql(sql_command)
     
     if parsed is None:
-        return None, "UNKNOWN"
+        return None, "Invalid Syntax"
     
     result = execute_command(user_tm, parsed)
-    cmd_type = parsed.get("type", "UNKNOWN")
+    cmd_type = parsed.get("type", "Invalid Syntax")
     
     return result, cmd_type
 
