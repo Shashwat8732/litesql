@@ -70,7 +70,7 @@ class MongoTableStorage:
             return None
     
     def get_all_tables(self, user_id):
-        """Get all tables for user with indexes"""
+       
         if not self.client:
             return []
         
@@ -91,7 +91,7 @@ class MongoTableStorage:
             return []
     
     def delete_table(self, user_id, table_name):
-        """Delete table from MongoDB"""
+        
         if not self.client:
             return False
         
