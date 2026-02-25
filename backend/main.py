@@ -174,10 +174,10 @@ def run_sql(sql_command):
     parsed = parse_sql(sql_command)
     
     if parsed is None:
-        return None, "UNKNOWN"
+        return None, "Invalid Syntax"
     
     result = execute_command(tm, parsed)
-    cmd_type = parsed.get("type", "UNKNOWN")
+    cmd_type = parsed.get("type", "Invalid Syntax")
     
     return result, cmd_type
 
