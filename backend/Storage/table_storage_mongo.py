@@ -1,6 +1,3 @@
-"""
-Storage/table_storage_mongo.py - MongoDB table storage
-"""
 import os
 from pymongo import MongoClient
 from datetime import datetime
