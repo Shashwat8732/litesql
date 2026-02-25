@@ -24,7 +24,7 @@ class MongoTableStorage:
             self.client = None
     
     def save_table(self, user_id, table_name, table_data):
-        """Save table to MongoDB with indexes"""
+        
         if not self.client:
             return False
         
