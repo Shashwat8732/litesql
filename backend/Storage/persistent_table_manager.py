@@ -1,3 +1,6 @@
+"""
+Storage/persistent_table_manager.py - Wrapper with auto-save to MongoDB
+"""
 
 from .table_manager import TableManager
 from .table_storage_mongo import MongoTableStorage
@@ -19,7 +22,7 @@ class PersistentTableManager(TableManager):
             self._load_all_from_mongo()
     
     def _load_all_from_mongo(self):
-        """Load all tables from MongoDB on init"""
+        """Load all tables from MongoDB on init and rebuild indexes"""
         print(f"🔄 Loading tables from MongoDB for user: {self.user_id}")
         
         if not self.mongo or not self.mongo.client:
@@ -35,22 +38,38 @@ class PersistentTableManager(TableManager):
             table_file = f"{self.db_path}/{table_name}.json"
             os.makedirs(self.db_path, exist_ok=True)
             
-            # Include indexes in table data
+            # Get indexes structure and rows
+            indexes = table.get('indexes', {"hashing": [], "b_tree": []})
+            rows = table.get('rows', [])
+            
+            # Save table data to JSON file
             table_data = {
                 "columns": table.get('columns', {}),
-                "rows": table.get('rows', []),
-                "indexes": table.get('indexes', {"hashing": [], "b_tree": []})
+                "rows": rows,
+                "indexes": indexes
             }
             
             with open(table_file, 'w') as f:
                 json.dump(table_data, f, indent=2)
             
-            # IMPORTANT: Load indexes after creating file
+            # IMPORTANT: Initialize indexes and rebuild from rows
             try:
+                # Load index structure (creates empty indexes)
                 self._load_indexes(table_name)
-                print(f"  ✅ {table_name} ({len(table.get('rows', []))} rows) - indexes loaded")
+                
+                # Rebuild indexes from existing rows
+                if len(rows) > 0:
+                    print(f"  🔄 Rebuilding indexes for {table_name} ({len(rows)} rows)...")
+                    # Add all rows back to index
+                    self._add_to_index(table_name, rows, save_to_disk=True)
+                    print(f"  ✅ {table_name} - indexes rebuilt with {len(rows)} rows")
+                else:
+                    print(f"  ✅ {table_name} - no rows to index")
+                    
             except Exception as e:
-                print(f"  ⚠️ {table_name} - index load failed: {e}")
+                print(f"  ⚠️ {table_name} - index rebuild failed: {e}")
+                import traceback
+                traceback.print_exc()
     
     def _sync_to_mongo(self, table_name):
         """Save to MongoDB after change"""
