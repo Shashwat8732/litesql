@@ -38,6 +38,7 @@ class PersistentTableManager(TableManager):
             table_file = f"{self.db_path}/{table_name}.json"
             os.makedirs(self.db_path, exist_ok=True)
             
+            # Include indexes in table data
             table_data = {
                 "columns": table.get('columns', {}),
                 "rows": table.get('rows', []),
@@ -47,14 +48,12 @@ class PersistentTableManager(TableManager):
             with open(table_file, 'w') as f:
                 json.dump(table_data, f, indent=2)
             
-            # Load indexes
-            if table_name not in self.memory_indexes:
-                try:
-                    self._load_indexes(table_name)
-                except:
-                    pass
-            
-            print(f"  ✅ {table_name} ({len(table.get('rows', []))} rows)")
+            # IMPORTANT: Load indexes after creating file
+            try:
+                self._load_indexes(table_name)
+                print(f"  ✅ {table_name} ({len(table.get('rows', []))} rows) - indexes loaded")
+            except Exception as e:
+                print(f"  ⚠️ {table_name} - index load failed: {e}")
     
     def _sync_to_mongo(self, table_name):
         """Save to MongoDB after change"""
