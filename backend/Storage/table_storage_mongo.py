@@ -1,7 +1,6 @@
 """
 Storage/table_storage_mongo.py - MongoDB table storage
 """
-
 import os
 from pymongo import MongoClient
 from datetime import datetime
@@ -28,7 +27,7 @@ class MongoTableStorage:
             self.client = None
     
     def save_table(self, user_id, table_name, table_data):
-        """Save table to MongoDB"""
+        """Save table to MongoDB with indexes"""
         if not self.client:
             return False
         
@@ -40,6 +39,7 @@ class MongoTableStorage:
                     "table_name": table_name,
                     "columns": table_data.get("columns", {}),
                     "rows": table_data.get("rows", []),
+                    "indexes": table_data.get("indexes", {"hashing": [], "b_tree": []}),
                     "updated_at": datetime.now().isoformat()
                 }},
                 upsert=True
@@ -51,7 +51,7 @@ class MongoTableStorage:
             return False
     
     def load_table(self, user_id, table_name):
-        """Load table from MongoDB"""
+        """Load table from MongoDB with indexes"""
         if not self.client:
             return None
         
@@ -64,7 +64,8 @@ class MongoTableStorage:
             if result:
                 return {
                     "columns": result.get("columns", {}),
-                    "rows": result.get("rows", [])
+                    "rows": result.get("rows", []),
+                    "indexes": result.get("indexes", {"hashing": [], "b_tree": []})
                 }
             return None
         except Exception as e:
@@ -72,20 +73,21 @@ class MongoTableStorage:
             return None
     
     def get_all_tables(self, user_id):
-        """Get all tables for user"""
+        """Get all tables for user with indexes"""
         if not self.client:
             return []
         
         try:
             tables = list(self.tables_col.find(
                 {"user_id": user_id},
-                {"_id": 0, "table_name": 1, "columns": 1, "rows": 1}
+                {"_id": 0, "table_name": 1, "columns": 1, "rows": 1, "indexes": 1}
             ))
             
             return [{
                 "name": t.get("table_name"),
                 "columns": t.get("columns", {}),
-                "rows": t.get("rows", [])
+                "rows": t.get("rows", []),
+                "indexes": t.get("indexes", {"hashing": [], "b_tree": []})
             } for t in tables]
         except Exception as e:
             print(f"❌ Get tables error: {e}")
