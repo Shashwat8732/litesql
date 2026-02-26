@@ -191,7 +191,7 @@ def run_sql_for_user(sql_command, user_id):
     parsed = parse_sql(sql_command)
     
     if parsed is None:
-        error_msg = f"❌ Invalid SQL syntax: {sql_command[:80]}"
+        error_msg = f"Invalid SQL syntax"
         print(error_msg)
         return {"error": error_msg}, "PARSE_ERROR"
     try:
@@ -208,8 +208,8 @@ def run_sql_for_user(sql_command, user_id):
         return result, cmd_type
         
     except Exception as e:
-        error_msg = f"❌ Execution error: {str(e)}"
-        print(error_msg)
+        error_msg = f"Execution error: {str(e)}"
+        print(f"❌ {error_msg}")
         import traceback
         traceback.print_exc()
         return {"error": error_msg}, "ERROR"
