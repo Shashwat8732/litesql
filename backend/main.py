@@ -191,13 +191,29 @@ def run_sql_for_user(sql_command, user_id):
     parsed = parse_sql(sql_command)
     
     if parsed is None:
-        return None, "Invalid Syntax"
-    
-    result = execute_command(user_tm, parsed)
-    cmd_type = parsed.get("type", "Invalid Syntax")
-    
-    return result, cmd_type
-
+        error_msg = f"❌ Invalid SQL syntax: {sql_command[:80]}"
+        print(error_msg)
+        return {"error": error_msg}, "PARSE_ERROR"
+    try:
+        result, cmd_type = execute_command(user_tm, parsed)
+        
+        query_types = [
+            "SELECT", "WHERE", "LIMIT", "ORDER", "FULL",
+            "DISTINCT", "GROUP BY"
+        ]
+       
+        if cmd_type in query_types and result is None:
+            return [], cmd_type
+        
+        return result, cmd_type
+        
+    except Exception as e:
+        error_msg = f"❌ Execution error: {str(e)}"
+        print(error_msg)
+        import traceback
+        traceback.print_exc()
+        return {"error": error_msg}, "ERROR"
+   
 
 def main():
     print("=" * 60)
