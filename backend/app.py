@@ -356,7 +356,7 @@ def query(session):
             print(f"{'='*60}\n")
             return jsonify({
                'success': False,
-               'error':error_msg",
+               'error':error_msg,
                'executionTime': exec_time
             }), 400 
          # Handle execution errors
@@ -366,7 +366,7 @@ def query(session):
              print(f"{'='*60}\n")
              return jsonify({
                  'success': False,
-                 'error':error_msg",
+                 'error':error_msg,
                  'executionTime': exec_time
              }), 500
         
