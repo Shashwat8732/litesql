@@ -191,11 +191,12 @@ def run_sql_for_user(sql_command, user_id):
     parsed = parse_sql(sql_command)
     
     if parsed is None:
-        error_msg = f"Invalid SQL syntax"
+        error_msg = "Invalid SQL syntax"
         print(error_msg)
         return {"error": error_msg}, "PARSE_ERROR"
     try:
-        result, cmd_type = execute_command(user_tm, parsed)
+        result = execute_command(user_tm, parsed)
+        cmd_type = parsed.get("type", "UNKNOWN")
         
         query_types = [
             "SELECT", "WHERE", "LIMIT", "ORDER", "FULL",
