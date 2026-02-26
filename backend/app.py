@@ -348,6 +348,27 @@ def query(session):
         start = time.time()
         result_data, cmd_type = run_sql_for_user(sql, user_id)
         exec_time = round((time.time() - start) * 1000, 2)
+
+        # Handle parse errors
+        if cmd_type == "PARSE_ERROR":
+            error_msg = result_data.get('error', '❌ Invalid SQL syntax') if isinstance(result_data, dict) else '❌ Invalid SQL syntax'
+            print(f"❌ Parse error: {error_msg}")
+            print(f"{'='*60}\n")
+            return jsonify({
+               'success': False,
+               'error': error_msg,
+               'executionTime': exec_time
+            }), 400 
+         # Handle execution errors
+        if cmd_type == "ERROR":
+             error_msg = result_data.get('error', 'Unknown error') if isinstance(result_data, dict) else 'Execution failed'
+             print(f"❌ Error: {error_msg}")
+             print(f"{'='*60}\n")
+             return jsonify({
+                 'success': False,
+                 'error': error_msg,
+                 'executionTime': exec_time
+             }), 500
         
         print(f"✅ Done in {exec_time}ms")
         
