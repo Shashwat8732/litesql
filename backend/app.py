@@ -352,21 +352,21 @@ def query(session):
         # Handle parse errors
         if cmd_type == "PARSE_ERROR":
             error_msg = result_data.get('error', '❌ Invalid SQL syntax') if isinstance(result_data, dict) else '❌ Invalid SQL syntax'
-            print(f"❌ Parse error: {error_msg}")
+            print(f"❌ Parse error")
             print(f"{'='*60}\n")
             return jsonify({
                'success': False,
-               'error': error_msg,
+               'error':❌ error_msg,
                'executionTime': exec_time
             }), 400 
          # Handle execution errors
         if cmd_type == "ERROR":
              error_msg = result_data.get('error', 'Unknown error') if isinstance(result_data, dict) else 'Execution failed'
-             print(f"❌ Error: {error_msg}")
+             print(f"❌ Error")
              print(f"{'='*60}\n")
              return jsonify({
                  'success': False,
-                 'error': error_msg,
+                 'error':❌ error_msg,
                  'executionTime': exec_time
              }), 500
         
