@@ -51,6 +51,9 @@ class PersistentTableManager(TableManager):
             # IMPORTANT: Initialize indexes and rebuild from rows
             try:
                 # Load index structure (creates empty indexes)
+                if table_name in self.memory_indexes:
+                     del self.memory_indexes[table_name]
+                    
                 self._load_indexes(table_name)
                 
                 # Rebuild indexes from existing rows
