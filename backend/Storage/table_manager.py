@@ -207,7 +207,13 @@ class TableManager:
              if value not in b_tree["values"]:
                 bisect.insort(b_tree["keys"],value)
                 b_tree["values"][value]=[]
-             b_tree["values"][value].append(row)
+             row_exists = False
+             for existing_row in b_tree["values"][value]:
+                 if existing_row == row:
+                     row_exists = True
+                     break
+             if not row_exists:
+                  b_tree["values"][value].append(row)
        if save_to_disk:
           self._save_indexes_to_disk(table_name)
 
