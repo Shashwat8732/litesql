@@ -50,6 +50,11 @@ class PersistentTableManager(TableManager):
             
             # IMPORTANT: Initialize indexes and rebuild from rows
             try:
+                if os.path.exists(pickle_file):
+                    os.remove(pickle_file)
+                    print(f"  🗑️  Deleted old pickle: {table_name}_indexes.pkl")
+
+                
                 # Load index structure (creates empty indexes)
                 if table_name in self.memory_indexes:
                      del self.memory_indexes[table_name]
