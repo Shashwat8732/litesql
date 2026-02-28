@@ -39,6 +39,7 @@ class TableManager:
 
         if os.path.exists(table_file):
              print(f"{table_name} file is already exists")
+             return False
         
             
         hashing_index=[]
