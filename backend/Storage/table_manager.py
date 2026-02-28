@@ -84,7 +84,7 @@ class TableManager:
         
        
 
-         schema={"columns":columns,
+        schema={"columns":columns,
                 "indexes":{
                    "hashing": hashing_index,
                    "b_tree": b_tree_index
@@ -93,11 +93,11 @@ class TableManager:
                 }
          
         
-         with open(table_file,"w",encoding="utf-8") as f:
+        with open(table_file,"w",encoding="utf-8") as f:
             json.dump(schema,f,indent=2,ensure_ascii=False)
           
-         self._load_indexes(table_name)
-         print(f"File Ready {table_name} 👍")
+        self._load_indexes(table_name)
+        print(f"File Ready {table_name} 👍")
          
        
         
