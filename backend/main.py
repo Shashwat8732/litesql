@@ -13,7 +13,7 @@ def execute_command(tm, parsed):
     cmd_type = parsed["type"]
 
     if cmd_type == "CREATE":
-        tm.create_table(parsed["table"], parsed["columns"])
+        tm.create_table(parsed["table"], parsed["columns"],parsed["index_hints"])
         return None
 
     elif cmd_type == "INSERT":
