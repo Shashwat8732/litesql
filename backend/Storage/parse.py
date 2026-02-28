@@ -30,7 +30,7 @@ class parse():
     return{
         "type":"CREATE",
         "table":table_name,
-        "columns":columns
+        "columns":columns,
         "index_hints": index_hints if index_hints else None
     }
   @staticmethod
