@@ -1538,31 +1538,31 @@ class TableManager:
     
        total_width = sum(widths.values()) + (len(column_names) * 3) + 1
     
-       print("\n" + "=" * total_width)
+       #print("\n" + "=" * total_width)
        table_title = f"📊 Table: {table_name.upper()}"
        padding = (total_width - len(table_title)) // 2
-       print(" " * padding + table_title)
-       print("=" * total_width)
+       #print(" " * padding + table_title)
+       #print("=" * total_width)
     
        border = "+"
        for col in column_names:
         border += "-" * (widths[col] + 2) + "+"
-       print(border)
+       #print(border)
     
        header = "|"
        for col in column_names:
         header += f" {col:<{widths[col]}} |"
-       print(header)
-       print(border)
+       #print(header)
+       #print(border)
     
        for row in all_rows:
         row_str = "|"
         for col in column_names:
             value = str(row.get(col, ""))
             row_str += f" {value:<{widths[col]}} |"
-        print(row_str)
+        #print(row_str)
     
-       print(border)
+       #print(border)
        print(f"Total rows: {len(all_rows)}\n")
        
       
