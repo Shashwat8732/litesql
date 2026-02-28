@@ -37,17 +37,20 @@ class TableManager:
     def create_table(self,table_name,columns):
         table_file=f"{self.db_path}/{table_name}.json"
 
-        if not os.path.exists(table_file):
-         hashing_index=[]
-         b_tree_index=[]
-         unique_patterns = {
+        if os.path.exists(table_file):
+             print(f"{table_name} file is already exists")
+        
+            
+        hashing_index=[]
+        b_tree_index=[]
+        unique_patterns = {
         "id", "email", "username", "phone", "mobile",
         "userid", "user_id", "employee_id", "customer_id",
         "ssn", "passport", "license_number",
         "uuid", "guid", "token", "api_key"
     }
          
-         duplicate_patterns = {
+        duplicate_patterns = {
         "name", "first_name", "last_name", "middle_name",
         "age", "salary", "price", "amount", "quantity",
         "city", "state", "country", "address", "zip",
@@ -57,10 +60,26 @@ class TableManager:
 
 
          for col_name,col_type in columns.items():
-            if col_name.lower() in unique_patterns:
-               hashing_index.append(col_name)
-            elif col_name.lower()  in duplicate_patterns:
-               b_tree_index.append(col_name)
+             if index_hints and col_name in index_hints:
+                  hint = index_hints[col_name]
+                  if hint == "HASH":
+                     hashing_index.append(col_name)
+                     print(f"   🚀 {col_name} → Hash (user specified)")
+                     continue
+                  elif hint == "BTREE":
+                       b_tree_index.append(col_name)
+                       print(f"   🌳 {col_name} → B-tree (user specified)")
+                       continue
+                  elif hint == "NONE":
+                       print(f"   ⚪ {col_name} → No index (user specified)")
+                       continue
+             if col_type in ["INT", "FLOAT"] or col_name.lower() in unique_patterns:
+                 hashing_index.append(col_name)
+             elif col_name.lower()  in duplicate_patterns:
+                  b_tree_index.append(col_name)
+             else:
+                 b_tree_index.append(col_name)
+                 print(f"   🌳 {col_name} → B-tree (default)")
         
        
 
@@ -79,8 +98,7 @@ class TableManager:
          self._load_indexes(table_name)
          print(f"File Ready {table_name} 👍")
          
-        else:
-           print(f"{table_name} file is already exists")
+       
         
     def _load_indexes(self,table_name):
        table_file = f"{self.db_path}/{table_name}.json"
