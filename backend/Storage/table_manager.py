@@ -34,7 +34,7 @@ class TableManager:
     
       self.column_order = {}
       
-    def create_table(self,table_name,columns):
+    def create_table(self,table_name,columns,index_hints=None):
         table_file=f"{self.db_path}/{table_name}.json"
 
         if os.path.exists(table_file):
@@ -59,7 +59,7 @@ class TableManager:
     }
 
 
-         for col_name,col_type in columns.items():
+        for col_name,col_type in columns.items():
              if index_hints and col_name in index_hints:
                   hint = index_hints[col_name]
                   if hint == "HASH":
