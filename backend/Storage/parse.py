@@ -494,4 +494,4 @@ class parse():
      "type":"SELECT",
      "table":table_name,
      "columns":columns
- }l
+ }
