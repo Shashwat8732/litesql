@@ -20,10 +20,18 @@ class parse():
         if len(parts)==2:
             col_name,col_type=parts
             columns[col_name]=col_type.upper()
+        elif len(parts) == 3:
+          col_name, col_type, hint = parts
+          columns[col_name] = col_type.upper()
+          index_hints[col_name] = hint.upper()
+        else:
+          print(f"❌ Invalid column: {col_def}")
+          return None
     return{
         "type":"CREATE",
         "table":table_name,
         "columns":columns
+        "index_hints": index_hints if index_hints else None
     }
   @staticmethod
   def parse_insert(sql):
