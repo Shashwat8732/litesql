@@ -15,6 +15,7 @@ class parse():
     columns_str=match.group(2)
 
     columns={}
+    index_hints = {}
     for col_def in columns_str.split(","):
         parts=col_def.strip().split()
         if len(parts)==2:
