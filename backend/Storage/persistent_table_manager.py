@@ -119,8 +119,8 @@ class PersistentTableManager(TableManager):
         self._sync_to_mongo(table_name)
         return result
     
-    def addmore_col(self, table_name, values):
-        result = super().addmore_col(table_name, values)
+    def addmore_col(self, table_name, values,index_hints):
+        result = super().addmore_col(table_name, values,index_hints)
         self._sync_to_mongo(table_name)
         return result
     
