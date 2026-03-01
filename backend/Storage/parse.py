@@ -110,15 +110,24 @@ class parse():
      columns_str=match.group(2)
 
      columns={}
+     index_hints = {} 
      for col_def in columns_str.split(","):
         parts=col_def.strip().split()
         if len(parts)==2:
             col_name,col_type=parts
             columns[col_name]=col_type.upper()
+        elif len(parts) == 3:
+            col_name, col_type, hint = parts
+            columns[col_name] = col_type.upper()
+            index_hints[col_name] = hint.upper()
+        else:
+            print(f"❌ Invalid column definition: {col_def}")
+            return None
      return{
         "type":"ADD COL",
         "table":table,
-        "columns":columns
+        "columns":columns,
+        "index_hints": index_hints if index_hints else None
     }
   
   @staticmethod
