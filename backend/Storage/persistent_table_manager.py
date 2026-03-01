@@ -98,8 +98,8 @@ class PersistentTableManager(TableManager):
     
     # Override methods
     
-    def create_table(self, table_name, columns,index_hints):
-        result = super().create_table(table_name, columns,index_hints)
+    def create_table(self, table_name, columns,index_hints=None):
+        result = super().create_table(table_name, columns,index_hints=None)
         self._sync_to_mongo(table_name)
         return result
     
@@ -119,8 +119,8 @@ class PersistentTableManager(TableManager):
         self._sync_to_mongo(table_name)
         return result
     
-    def addmore_col(self, table_name, values,index_hints):
-        result = super().addmore_col(table_name, values,index_hints)
+    def addmore_col(self, table_name, values,index_hints=None):
+        result = super().addmore_col(table_name, values,index_hints=None)
         self._sync_to_mongo(table_name)
         return result
     
