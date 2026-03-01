@@ -370,7 +370,7 @@ class TableManager:
              elif col_type in ["INT", "FLOAT"]:
                    if col_name not in indexes["b_tree"]:
                        indexes["b_tree"].append(col_name)
-             elif col_lower in duplicate_patterns:
+             elif col_name.lower() in duplicate_patterns:
                   if col_name not in indexes["b_tree"]:
                       indexes["b_tree"].append(col_name)
              else:
