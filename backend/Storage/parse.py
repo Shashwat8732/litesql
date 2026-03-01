@@ -16,8 +16,12 @@ class parse():
 
     columns={}
     index_hints = {}
+    print(f"\n🔍 PARSER DEBUG:")  # ← ADD THIS
+    print(f"   Raw SQL: {sql}")
     for col_def in columns_str.split(","):
         parts=col_def.strip().split()
+        print(f"   Column def: {col_def}")  # ← ADD THIS
+        print(f"   Parts: {parts}")
         if len(parts)==2:
             col_name,col_type=parts
             columns[col_name]=col_type.upper()
@@ -25,9 +29,13 @@ class parse():
           col_name, col_type, hint = parts
           columns[col_name] = col_type.upper()
           index_hints[col_name] = hint.upper()
+          print(f"   → Saved hint: {col_name} = {hint.upper()}")
         else:
           print(f"❌ Invalid column: {col_def}")
           return None
+    print(f"   Final columns: {columns}")  # ← ADD THIS
+    print(f"   Final hints: {index_hints}")
+    
     return{
         "type":"CREATE",
         "table":table_name,
