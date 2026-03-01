@@ -301,17 +301,24 @@ class TableManager:
             json.dump(schema,f,indent=2,ensure_ascii=False)
        print(f"✅ columns are inserted to {table_name} table")
     
-    def addmore_col(self,table_name,values):
+    def addmore_col(self,table_name,values,index_hints=None):
          table_file = f"{self.db_path}/{table_name}.json"
          if not os.path.exists(table_file):
             print(f"❌ {table_name} does not exist")
             return
          unique_patterns = {
-        "id", "email", "username", "phone", "mobile",
-        "userid", "user_id", "employee_id", "customer_id",
-        "ssn", "passport", "license_number",
-        "uuid", "guid", "token", "api_key"
-    }
+            "id", "email", "username", "phone", "mobile",
+            "userid", "user_id", "employee_id", "customer_id",
+            "ssn", "passport", "license_number",
+            "uuid", "guid", "token", "api_key"
+         }
+         duplicate_patterns = {
+            "name", "first_name", "last_name", "middle_name",
+            "age", "salary", "price", "amount", "quantity",
+            "city", "state", "country", "address", "zip",
+            "department", "role", "status", "category", "type",
+            "date", "created_at", "updated_at", "timestamp"
+         }
          with open(table_file, "r", encoding="utf-8") as f:
                table_data = json.load(f)
                columns=table_data["columns"]
@@ -343,13 +350,33 @@ class TableManager:
                upd_rows.append(new_row)
          table_data["rows"]=upd_rows
 
-         for col_name in new_columns.keys():
-            if col_name.lower() in unique_patterns:
-               if col_name not in indexes["hashing"]:  
-                indexes["hashing"].append(col_name)
-            else:
-             if col_name not in indexes["b_tree"]: 
-                indexes["b_tree"].append(col_name)
+         for col_name , col_type in new_columns.items():
+             if index_hints and col_name in index_hints:
+                 hint = index_hints[col_name]
+                 if hint == "HASH":
+                     if col_name not in indexes["hashing"]:
+                         indexes["hashing"].append(col_name)
+                         continue
+                 elif hint == "BTREE":
+                      if col_name not in indexes["b_tree"]:
+                          indexes["b_tree"].append(col_name)
+                          continue
+                 elif hint == "NONE":
+                     continue
+                
+             if col_name.lower() in unique_patterns: 
+                 if col_name not in indexes["hashing"]:  
+                     indexes["hashing"].append(col_name)
+             elif col_type in ["INT", "FLOAT"]:
+                   if col_name not in indexes["b_tree"]:
+                       indexes["b_tree"].append(col_name)
+             elif col_lower in duplicate_patterns:
+                  if col_name not in indexes["b_tree"]:
+                      indexes["b_tree"].append(col_name)
+             else:
+                 if col_name not in indexes["b_tree"]: 
+                     indexes["b_tree"].append(col_name)
+            
     
          table_data["indexes"] = indexes
          with open(table_file,"w",encoding="utf-8") as f:
@@ -358,13 +385,26 @@ class TableManager:
          if table_name not in self.memory_indexes:
             self._load_indexes(table_name)
          for col_name,col_type in new_columns.items():
-            if col_name.lower() in unique_patterns:
-               self.memory_indexes[table_name]["hash"][col_name] = {}
-            else:
-               self.memory_indexes[table_name]["b_tree"][col_name] = {
-                "keys": [],
-                "values": {}
-            }
+              if index_hints and col_name in index_hints:
+                  hint = index_hints[col_name]
+                  if hint == "HASH":
+                      self.memory_indexes[table_name]["hash"][col_name] = {}
+                      continue
+                  elif hint == "BTREE":
+                       self.memory_indexes[table_name]["b_tree"][col_name] = {
+                         "keys": [],
+                         "values": {}
+                       }
+                       continue
+                  elif hint == "NONE":
+                      continue
+              if col_name.lower() in unique_patterns:
+                  self.memory_indexes[table_name]["hash"][col_name] = {}
+              else:
+                 self.memory_indexes[table_name]["b_tree"][col_name] = {
+                   "keys": [],
+                   "values": {}
+                 }
                
          self._save_indexes_to_disk(table_name)
          print(f"✅ {len(new_columns)} column(s) are added to {table_name} table")         
