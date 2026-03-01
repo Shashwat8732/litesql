@@ -48,7 +48,7 @@ class PersistentTableManager(TableManager):
             with open(table_file, 'w') as f:
                 json.dump(table_data, f, indent=2)
             
-            # IMPORTANT: Initialize indexes and rebuild from rows
+           
             try:
                 
                 # Load index structure (creates empty indexes)
