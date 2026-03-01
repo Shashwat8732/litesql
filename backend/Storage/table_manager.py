@@ -1329,7 +1329,27 @@ class TableManager:
          table_data = json.load(f)
     
        columns = table_data["columns"]
+       rows = table_data.get("rows")
+       if col not in columns:
+           print(f"❌ Column '{col}' does not exist in table '{table}'")
+           return []
        col_type = columns.get(col)
+        
+       if value.upper() in ["NULL", "NONE"]:
+           result = []
+           for row in rows:
+               row_dict = dict(zip(columns.keys(), row))
+               row_value = row_dict.get(col)
+               if op == "=":
+                  if row_value is None or row_value == "None" or row_value == "NULL":
+                      result.append(row_dict)
+               elif op == "!=":
+                    if row_value is not None and row_value != "None" and row_value != "NULL":
+                         result.append(row_dict)
+        
+           return result
+
+        
        if col_type=="INT":
           con_val=int(value)
        elif col_type=="FLOAT":
