@@ -99,7 +99,7 @@ class PersistentTableManager(TableManager):
     # Override methods
     
     def create_table(self, table_name, columns,index_hints=None):
-        result = super().create_table(table_name, columns,index_hints=None)
+        result = super().create_table(table_name, columns,index_hints)
         self._sync_to_mongo(table_name)
         return result
     
