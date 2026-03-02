@@ -17,7 +17,6 @@ class TableManager:
       if not os.path.isabs(pickle_path):
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         pickle_path = os.path.join(base_dir, pickle_path.lstrip('./'))
-    
    
       self.db_path = db_path
       self.pickle_path = pickle_path
