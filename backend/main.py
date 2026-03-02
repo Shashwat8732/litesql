@@ -25,7 +25,7 @@ def execute_command(tm, parsed):
         return None
     
     elif cmd_type == "ADD COL":
-        tm.addmore_col(parsed["table"], parsed["columns"],parsed["index_hints")
+        tm.addmore_col(parsed["table"], parsed["columns"],parsed["index_hints"])
         return None
     
     elif cmd_type == "UPDATE COL":
