@@ -153,7 +153,7 @@ class TableManager:
             if len(index) > 3:
                 print(f"      ... ({len(index) - 3} more)")
       
-        btree_indexes = indexes.get("b_tree", {})
+       btree_indexes = indexes.get("b_tree", {})
        print(f"\n🌳 B-Tree Indexes ({len(btree_indexes)}):")
        for col, index in btree_indexes.items():
         keys = index.get("keys", [])
