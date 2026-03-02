@@ -428,7 +428,16 @@ class TableManager:
                    "keys": [],
                    "values": {}
                 }
-    
+        for col in self.memory_indexes[table_name]["hash"]:
+            self.memory_indexes[table_name]["hash"][col] = {}
+        for col in self.memory_indexes[table_name]["b_tree"]:
+            self.memory_indexes[table_name]["b_tree"][col] = {
+               "keys": [],
+               "values": {}
+            }
+        if len(upd_rows) > 0:
+            self._add_to_index(table_name, upd_rows, save_to_disk=False)
+        
         self._save_indexes_to_disk(table_name)
         print(f"\n✅ {len(new_columns)} column(s) added to {table_name}\n")
            
