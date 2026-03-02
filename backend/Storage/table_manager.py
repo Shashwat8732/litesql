@@ -362,9 +362,9 @@ class TableManager:
                 hint = index_hints[col_name]
                 if hint == "HASH":
                     if col_name not in indexes["hashing"]:
-                    indexes["hashing"].append(col_name)
-                print(f"   🚀 {col_name} → Hash (user specified)")
-                continue
+                        indexes["hashing"].append(col_name)
+                    print(f"   🚀 {col_name} → Hash (user specified)")
+                    continue
             
                 elif hint == "BTREE":
                     if col_name not in indexes["b_tree"]:
