@@ -355,12 +355,11 @@ class TableManager:
                  if hint == "HASH":
                      if col_name not in indexes["hashing"]:
                          indexes["hashing"].append(col_name)
-                    
                      continue
                  elif hint == "BTREE":
-                      if col_name not in indexes["b_tree"]:
-                          indexes["b_tree"].append(col_name)
-                      continue
+                     if col_name not in indexes["b_tree"]:
+                         indexes["b_tree"].append(col_name)
+                     continue
                  elif hint == "NONE":
                      continue
                 
