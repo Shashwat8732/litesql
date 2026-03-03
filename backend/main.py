@@ -3,7 +3,6 @@ from Storage.parse import parse
 
 pr = parse()
 
-# Global tm - will be overridden per user
 tm = TableManager()
 
 def execute_command(tm, parsed):
@@ -182,10 +181,7 @@ def run_sql(sql_command):
     return result, cmd_type
 
 
-# ✅ NEW: User-specific execution
 def run_sql_for_user(sql_command, user_id):
-    """Execute SQL for specific user"""
-    # Create user-specific table manager
     user_tm = TableManager(db_path=f"./Data/{user_id}", pickle_path=f"./Pickles/{user_id}",user_id=user_id)
     
     parsed = parse_sql(sql_command)
