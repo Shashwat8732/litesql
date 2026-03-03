@@ -285,26 +285,48 @@ class parse():
     }
   @staticmethod
   def parse_get(sql):
-    match=re.match(
-        r"SELECT\s+\*\s+FROM\s+(\w+)\s+WHERE\s+(\w+)\s*(>=|<=|!=|>|<|=)\s*(['\"]?)([^'\";\s]+)\4"
-        ,sql,re.IGNORECASE
+    null_match = re.match(
+        r"SELECT\s+\*\s+FROM\s+(\w+)\s+WHERE\s+(\w+)\s+IS\s+(NOT\s+)?NULL",
+        sql, re.IGNORECASE
     )
-
+    if null_match:
+        return {
+            "type": "WHERE",
+            "table": null_match.group(1),
+            "col": null_match.group(2),
+            "op": "!=" if null_match.group(3) else "=",
+            "value": "NULL"
+        }
+    
+    # Pattern 2: WHERE clause with operator
+    match = re.match(
+        r"SELECT\s+\*\s+FROM\s+(\w+)\s+WHERE\s+(\w+)\s*(>=|<=|!=|>|<|=)\s*(.+?)(?:\s*;\s*|\s*)$",
+        sql, re.IGNORECASE
+    )
+    
     if not match:
         print("❌ Invalid WHERE format")
         return None
     
-    table_name=match.group(1)
-    col=match.group(2)
-    op=match.group(3)
-    value=match.group(5)
-
-    return{
+    table_name = match.group(1)
+    col = match.group(2)
+    op = match.group(3)
+    value = match.group(4).strip()
+    
+    # Remove trailing semicolon if present
+    value = value.rstrip(';').strip()
+    
+    # Remove quotes if present (single or double)
+    if (value.startswith("'") and value.endswith("'")) or \
+       (value.startswith('"') and value.endswith('"')):
+        value = value[1:-1]
+    
+    return {
         "type": "WHERE",
-        "table":table_name,
-        "col":col,
-        "op":op,
-        "value":value
+        "table": table_name,
+        "col": col,
+        "op": op,
+        "value": value
     }
   @staticmethod
   def parse_limit(sql):
