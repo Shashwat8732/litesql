@@ -5,12 +5,10 @@ from datetime import datetime
 class MongoTableStorage:
     def __init__(self):
         mongo_url = os.environ.get('MONGO_URL', '')
-        
         if not mongo_url:
             print("❌ MONGO_URL not set!")
             self.client = None
             return
-        
         try:
             self.client = MongoClient(mongo_url, serverSelectionTimeoutMS=5000)
             self.db = self.client['litesql']
@@ -27,7 +25,6 @@ class MongoTableStorage:
         
         if not self.client:
             return False
-        
         try:
             self.tables_col.update_one(
                 {"user_id": user_id, "table_name": table_name},
@@ -48,16 +45,13 @@ class MongoTableStorage:
             return False
     
     def load_table(self, user_id, table_name):
-        """Load table from MongoDB with indexes"""
         if not self.client:
             return None
-        
         try:
             result = self.tables_col.find_one({
                 "user_id": user_id,
                 "table_name": table_name
             })
-            
             if result:
                 return {
                     "columns": result.get("columns", {}),
@@ -70,16 +64,13 @@ class MongoTableStorage:
             return None
     
     def get_all_tables(self, user_id):
-       
         if not self.client:
             return []
-        
         try:
             tables = list(self.tables_col.find(
                 {"user_id": user_id},
                 {"_id": 0, "table_name": 1, "columns": 1, "rows": 1, "indexes": 1}
             ))
-            
             return [{
                 "name": t.get("table_name"),
                 "columns": t.get("columns", {}),
@@ -91,10 +82,8 @@ class MongoTableStorage:
             return []
     
     def delete_table(self, user_id, table_name):
-        
         if not self.client:
             return False
-        
         try:
             result = self.tables_col.delete_one({
                 "user_id": user_id,
