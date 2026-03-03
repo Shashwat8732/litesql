@@ -173,7 +173,6 @@ class TableManager:
         "btree_indexes": []
     }
     
-    # Hash indexes
        for col, index in hash_indexes.items():
         entries = []
         for key, value in list(index.items())[:10]:
@@ -185,7 +184,7 @@ class TableManager:
             "entries": entries
         })
     
-    # B-tree indexes
+   
        for col, index in btree_indexes.items():
         keys = index.get("keys", [])
         values = index.get("values", {}) 
