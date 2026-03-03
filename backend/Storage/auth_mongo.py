@@ -1,7 +1,3 @@
-"""
-Storage/auth_mongo.py - MongoDB Authentication (Persistent on Atlas)
-"""
-
 import os
 import hashlib
 import secrets
@@ -23,11 +19,9 @@ class AuthManager:
             self.users_col = self.db['users']
             self.sessions_col = self.db['sessions']
             
-            # Test connection
             self.client.server_info()
             print("✅ MongoDB connected - Auth ready!")
             
-            # Create indexes
             self.users_col.create_index("username", unique=True)
             self.sessions_col.create_index("token", unique=True)
             
@@ -52,15 +46,12 @@ class AuthManager:
             if len(password) < 6:
                 return {"success": False, "error": "Password must be at least 6 characters"}
             
-            # Check if user exists
             if self.users_col.find_one({"username": username}):
                 return {"success": False, "error": "Username already exists"}
             
-            # Get user count for user_id
             user_count = self.users_col.count_documents({})
             user_id = f"user_{user_count + 1}"
             
-            # Save user to MongoDB
             self.users_col.insert_one({
                 "username": username,
                 "user_id": user_id,
@@ -69,7 +60,6 @@ class AuthManager:
                 "created_at": datetime.now().isoformat()
             })
             
-            # Create user folders (local - for tables/pickles)
             BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             os.makedirs(os.path.join(BASE_DIR, "Data", user_id), exist_ok=True)
             os.makedirs(os.path.join(BASE_DIR, "Pickles", user_id), exist_ok=True)
@@ -86,20 +76,16 @@ class AuthManager:
             return {"success": False, "error": "Database not connected"}
         
         try:
-            # Find user
             user = self.users_col.find_one({"username": username})
             
             if not user:
                 return {"success": False, "error": "Invalid username or password"}
             
-            # Check password
             if user["password_hash"] != self.hash_password(password):
                 return {"success": False, "error": "Invalid username or password"}
             
-            # Generate session token
             session_token = self.generate_session_token()
             
-            # Save session to MongoDB (1 year expiry)
             self.sessions_col.insert_one({
                 "token": session_token,
                 "user_id": user["user_id"],
@@ -143,13 +129,11 @@ class AuthManager:
             return None
         
         try:
-            # Find session
             session = self.sessions_col.find_one({"token": session_token})
             
             if not session:
                 return None
             
-            # Check if expired
             try:
                 expires_at = datetime.fromisoformat(session["expires_at"])
                 if datetime.now() > expires_at:
