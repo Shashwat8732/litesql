@@ -18,7 +18,6 @@ class PersistentTableManager(TableManager):
             self._load_all_from_mongo()
     
     def _load_all_from_mongo(self):
-        """Load all tables from MongoDB on init and rebuild indexes"""
         print(f"🔄 Loading tables from MongoDB for user: {self.user_id}")
         
         if not self.mongo or not self.mongo.client:
@@ -34,11 +33,9 @@ class PersistentTableManager(TableManager):
             table_file = f"{self.db_path}/{table_name}.json"
             os.makedirs(self.db_path, exist_ok=True)
             
-            # Get indexes structure and rows
             indexes = table.get('indexes', {"hashing": [], "b_tree": []})
             rows = table.get('rows', [])
             
-            # Save table data to JSON file
             table_data = {
                 "columns": table.get('columns', {}),
                 "rows": rows,
@@ -51,16 +48,13 @@ class PersistentTableManager(TableManager):
            
             try:
                 
-                # Load index structure (creates empty indexes)
                 if table_name in self.memory_indexes:
                      del self.memory_indexes[table_name]
                     
                 self._load_indexes(table_name)
                 
-                # Rebuild indexes from existing rows
                 if len(rows) > 0:
                     print(f"  🔄 Rebuilding indexes for {table_name} ({len(rows)} rows)...")
-                    # Add all rows back to index
                     self._add_to_index(table_name, rows, save_to_disk=True)
                     print(f"  ✅ {table_name} - indexes rebuilt with {len(rows)} rows")
                 else:
@@ -72,7 +66,6 @@ class PersistentTableManager(TableManager):
                 traceback.print_exc()
     
     def _sync_to_mongo(self, table_name):
-        """Save to MongoDB after change"""
         if not self.user_id:
             print(f"⚠️ No user_id, skipping MongoDB sync")
             return
@@ -96,7 +89,6 @@ class PersistentTableManager(TableManager):
         except Exception as e:
             print(f"❌ MongoDB sync error: {e}")
     
-    # Override methods
     
     def create_table(self, table_name, columns,index_hints=None):
         result = super().create_table(table_name, columns,index_hints)
@@ -156,23 +148,19 @@ class PersistentTableManager(TableManager):
         return result
     
     def read_csv(self, table_name, csv_file):
-        """Read CSV + auto-save with verification"""
         print(f"🔵 read_csv called: table={table_name}, file={csv_file}")
         
         try:
-            # Call parent method
             result = super().read_csv(table_name, csv_file)
             
             print(f"🔵 CSV read completed, checking file...")
             
-            # Verify file was updated
             table_file = f"{self.db_path}/{table_name}.json"
             if os.path.exists(table_file):
                 with open(table_file, 'r') as f:
                     data = json.load(f)
                 print(f"🔵 File has {len(data.get('rows', []))} rows")
             
-            # Force sync to MongoDB
             print(f"🔵 Syncing to MongoDB...")
             self._sync_to_mongo(table_name)
             
@@ -186,7 +174,6 @@ class PersistentTableManager(TableManager):
             raise
     
     def insert_from_excel(self, table_name, excel_file, sheet_name=None):
-        """Insert from Excel + auto-save"""
         print(f"🔵 insert_from_excel called: table={table_name}")
         
         try:
