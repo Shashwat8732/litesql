@@ -4,7 +4,6 @@ import secrets
 import json
 from datetime import datetime, timedelta
 
-    # Local development
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     DATA_DIR = os.path.join(BASE_DIR, "Data")
     PICKLE_DIR = os.path.join(BASE_DIR, "Pickles")
