@@ -10,7 +10,6 @@ from Storage.auth_mongo import AuthManager
 auth = AuthManager()
 app = Flask(__name__)
 
-# ✅ FIXED CORS Configuration
 CORS(app, 
      resources={r"/api/*": {"origins": [
             "http://localhost:3000",
@@ -34,7 +33,6 @@ print("\n" + "="*70)
 print("🚀 LiteSQL Bridge - With Authentication")
 print("="*70)
 
-# Import from main.py
 try:
     from main import run_sql_for_user, pr
     from Storage.persistent_table_manager import PersistentTableManager as TableManager
@@ -51,12 +49,10 @@ def allowed_file(filename):
 
 
 def get_session_token():
-    """Get session token from header"""
     return request.headers.get('Authorization')
 
 
 def require_auth(f):
-    """Decorator to require authentication"""
     def wrapper(*args, **kwargs):
         session_token = get_session_token()
         session = auth.verify_session(session_token)
@@ -72,7 +68,6 @@ def require_auth(f):
 
 
 def get_tables_list(user_id):
-    """Get user's tables from MongoDB"""
     try:
         from Storage.table_storage_mongo import MongoTableStorage
         mongo_storage = MongoTableStorage()
@@ -98,7 +93,6 @@ def get_tables_list(user_id):
         
         print("⚠️ MongoDB not connected, checking local files")
         
-        # Fallback to local
         data_path = f"./Data/{user_id}"
         if not os.path.exists(data_path):
             print(f"⚠️ No data path: {data_path}")
@@ -129,13 +123,9 @@ def get_tables_list(user_id):
         traceback.print_exc()
         return []
 
-# ============================================
-# AUTH ENDPOINTS
-# ============================================
 
 @app.route('/api/auth/register', methods=['POST'])
 def register():
-    """Register new user"""
     data = request.json
     username = data.get('username', '').strip()
     password = data.get('password', '').strip()
@@ -150,7 +140,6 @@ def register():
 
 @app.route('/api/auth/login', methods=['POST'])
 def login():
-    """Login user"""
     data = request.json
     username = data.get('username', '').strip()
     password = data.get('password', '').strip()
@@ -164,7 +153,6 @@ def login():
 
 @app.route('/api/auth/logout', methods=['POST'])
 def logout():
-    """Logout user"""
     session_token = get_session_token()
     result = auth.logout(session_token)
     return jsonify(result)
@@ -173,7 +161,6 @@ def logout():
 @app.route('/api/auth/me', methods=['GET'])
 @require_auth
 def get_current_user(session):
-    """Get current user info"""
     return jsonify({
         'success': True,
         'user': {
@@ -183,9 +170,6 @@ def get_current_user(session):
     })
 
 
-# ============================================
-# PROTECTED ENDPOINTS
-# ============================================
 
 @app.route('/', methods=['GET'])
 def index():
@@ -217,7 +201,6 @@ def health():
 @app.route('/api/query/tables', methods=['GET'])
 @require_auth
 def tables(session):
-    """Get user's tables"""
     try:
         user_id = session['user_id']
         tables_list = get_tables_list(user_id)
@@ -258,7 +241,6 @@ def upload_file(session):
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], f"{user_id}_{filename}")
         file.save(filepath)
         
-        # ✅ Check if table exists BEFORE processing
         table_file = f"./Data/{user_id}/{table_name}.json"
         if not os.path.exists(table_file):
             os.remove(filepath)
@@ -330,7 +312,6 @@ def upload_file(session):
 @app.route('/api/query', methods=['POST'])
 @require_auth
 def query(session):
-    """Execute SQL for user"""
     try:
         data = request.json
         sql = data.get('sql', '').strip()
@@ -349,7 +330,6 @@ def query(session):
         result_data, cmd_type = run_sql_for_user(sql, user_id)
         exec_time = round((time.time() - start) * 1000, 2)
 
-        # Handle parse errors
         if cmd_type == "PARSE_ERROR":
             error_msg = result_data.get('error', 'Invalid SQL syntax') if isinstance(result_data, dict) else 'Invalid SQL syntax'
             print(f"❌ Parse error")
@@ -359,7 +339,6 @@ def query(session):
                'error':error_msg,
                'executionTime': exec_time
             }), 400 
-         # Handle execution errors
         if cmd_type == "ERROR":
              error_msg = result_data.get('error', 'Unknown error') if isinstance(result_data, dict) else 'Execution failed'
              print(f"❌ Error")
@@ -372,7 +351,7 @@ def query(session):
         
         print(f"✅ Done in {exec_time}ms")
         
-        # Type handling
+       
         if isinstance(result_data, list) and len(result_data) > 0:
             print(f"   Rows: {len(result_data)}")
             column_names = list(result_data[0].keys())
@@ -422,9 +401,6 @@ def query(session):
             })
              
 
-             
-            
-                
         
     except Exception as e:
         print(f"❌ Error: {e}")
