@@ -165,7 +165,6 @@ class parse():
         for part in order_parts:
             part = part.strip()
             
-            # Check for DESC
             if "DESC" in part.upper():
                 # Remove DESC and extract column name
                 col = part.upper().replace("DESC", "").strip()
@@ -285,6 +284,7 @@ class parse():
     }
   @staticmethod
   def parse_get(sql):
+    
     null_match = re.match(
         r"SELECT\s+\*\s+FROM\s+(\w+)\s+WHERE\s+(\w+)\s+IS\s+(NOT\s+)?NULL",
         sql, re.IGNORECASE
@@ -298,7 +298,6 @@ class parse():
             "value": "NULL"
         }
     
-    # Pattern 2: WHERE clause with operator
     match = re.match(
         r"SELECT\s+\*\s+FROM\s+(\w+)\s+WHERE\s+(\w+)\s*(>=|<=|!=|>|<|=)\s*(.+?)(?:\s*;\s*|\s*)$",
         sql, re.IGNORECASE
@@ -313,10 +312,8 @@ class parse():
     op = match.group(3)
     value = match.group(4).strip()
     
-    # Remove trailing semicolon if present
     value = value.rstrip(';').strip()
     
-    # Remove quotes if present (single or double)
     if (value.startswith("'") and value.endswith("'")) or \
        (value.startswith('"') and value.endswith('"')):
         value = value[1:-1]
@@ -463,7 +460,6 @@ class parse():
     for col in col_parts:
         col = col.strip()
         
-        
         agg_match = re.match(r"(COUNT|SUM|AVG|MIN|MAX)\s*\(\s*(\*|\w+)\s*\)", col, re.IGNORECASE)
         
         if agg_match:
@@ -515,7 +511,6 @@ class parse():
      "offset":offset
      
  }
- 
 
   @staticmethod
   def parse_select(sql):
