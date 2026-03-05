@@ -33,12 +33,10 @@ function LoginPage({ onLogin }) {
 
       if (result.success) {
         if (isLogin) {
-          // Login successful
           localStorage.setItem('session_token', result.session_token);
           localStorage.setItem('username', result.username);
           onLogin(result);
         } else {
-          // Registration successful, switch to login
           setIsLogin(true);
           setError('');
           alert('✅ Registration successful! Please login.');
@@ -59,6 +57,21 @@ function LoginPage({ onLogin }) {
         <div className="login-header">
           <h1>🗄️ LiteSQL</h1>
           <p>Your Personal Database in the Cloud</p>
+        </div>
+
+        {/* Backend Loading Notice */}
+        <div className="backend-notice">
+          <div className="backend-notice-icon">⏳</div>
+          <div className="backend-notice-content">
+            <strong>⚡ First Request? Please Wait!</strong>
+            <p>
+              Backend hosted on <span className="notice-highlight">free tier</span> takes 
+              <span className="notice-highlight"> 30-60 seconds</span> to wake up on first request.
+            </p>
+            <p style={{fontSize: '12px', opacity: 0.9, marginTop: '6px'}}>
+              ✅ Subsequent requests will be instant!
+            </p>
+          </div>
         </div>
 
         <div className="login-tabs">
@@ -83,7 +96,7 @@ function LoginPage({ onLogin }) {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter username"
+              placeholder="Enter username (min 3 chars)"
               required
               minLength={3}
             />
@@ -107,7 +120,7 @@ function LoginPage({ onLogin }) {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter password"
+              placeholder="Enter password (min 6 chars)"
               required
               minLength={6}
             />
@@ -124,7 +137,7 @@ function LoginPage({ onLogin }) {
             className="submit-btn"
             disabled={loading}
           >
-            {loading ? (isLogin ? 'Logging in...' : 'Registering...') : (isLogin ? 'Login' : 'Register')}
+            {loading ? (isLogin ? '⏳ Logging in...' : '⏳ Registering...') : (isLogin ? 'Login' : 'Register')}
           </button>
         </form>
 
