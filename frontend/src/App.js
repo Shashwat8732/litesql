@@ -1,8 +1,3 @@
-// ==========================================
-// FILE 7: src/App.js (FRONTEND - REPLACE)
-// Save as: src/App.js
-// ==========================================
-
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import LoginPage from './LoginPage';
@@ -32,7 +27,6 @@ function App() {
   
   const backendUrl = 'https://litesql.onrender.com';
 
-  // Check if already logged in
   useEffect(() => {
     const token = localStorage.getItem('session_token');
     const username = localStorage.getItem('username');
@@ -181,7 +175,6 @@ function App() {
     };
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sqlInput]);
 
   const handleFileUpload = async () => {
