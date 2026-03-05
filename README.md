@@ -1,11 +1,28 @@
 # 🗄️⚡ LiteSQL
 
-> A lightweight SQL-like database engine built with Python — fast, simple, and powerful.
+> A lightweight SQL database engine with intelligent indexing — fast, simple, and powerful.
 
 [![Python](https://img.shields.io/badge/Python-3.11-blue)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-3.0-green)](https://flask.palletsprojects.com)
 [![React](https://img.shields.io/badge/React-18-blue)](https://react.dev)
 [![Live Demo](https://img.shields.io/badge/Demo-Live-brightgreen)](https://litesql.vercel.app)
+
+**LiteSQL** is a custom SQL database engine featuring hybrid Hash + B-tree indexing, smart auto-detection, and multi-user persistence with MongoDB. Built from scratch to understand core database concepts.
+
+---
+
+## 🌟 Key Features
+
+- 🚀 **Hybrid Indexing**: Hash indexes (O(1) lookups) + B-tree indexes (range queries)
+- 🧠 **Smart Auto-Indexing**: Automatically selects optimal index type based on column patterns
+- 🎯 **User Index Hints**: Manual control with `HASH`, `BTREE`, `NONE` keywords (like MySQL)
+- 💾 **Dual Persistence**: JSON files (local) + MongoDB (cloud) — survives backend restarts
+- 👥 **Multi-User Support**: Isolated databases per user with session-based auth
+- 📊 **Index Visualization**: Inspect hash maps and B-tree structures with `SHOW PICKLE`
+- 📁 **Bulk Import**: CSV/Excel file uploads with automatic table creation
+- 🔧 **Schema Evolution**: Add columns with automatic index rebuild
+
+---
 
 ## 🌐 Live Demo
 
@@ -13,432 +30,407 @@
 
 🔗 **Backend API:** [https://litesql.onrender.com](https://litesql.onrender.com)
 
-> ⚠️ **Note:** Backend is hosted on Render free tier.
-> First request may take **30-60 seconds** to wake up the server.
-> Please wait after first login — it's free hosting! 😄
+> ⚠️ **Note:** Backend hosted on Render free tier.
+> First request may take **1-2 minutes** to wake up.
+> Please wait after login — it's free hosting! 😄
 
 ---
 
 ## 📋 Table of Contents
 
 - [Quick Start](#-quick-start)
+- [Architecture](#-architecture)
+- [Smart Indexing](#-smart-indexing)
 - [SQL Commands](#-sql-commands)
-  - [CREATE TABLE](#1-create-table)
-  - [INSERT](#2-insert)
-  - [SELECT](#3-select)
-  - [WHERE](#4-where)
-  - [ORDER BY](#5-order-by)
-  - [LIMIT & OFFSET](#6-limit--offset)
-  - [DISTINCT ON](#7-distinct-on)
-  - [GROUP BY](#8-group-by)
-  - [UPDATE](#9-update)
-  - [DELETE](#10-delete)
-  - [DROP](#11-drop)
-  - [ADD COLUMNS](#12-add-columns)
-  - [SHOW INDEXES](#13-show-indexes)
-  - [File Import](#14-file-import)
 - [Authentication](#-authentication)
+- [Tech Stack](#-tech-stack)
 - [Deployment](#-deployment)
 
 ---
 
 ## 🚀 Quick Start
 
-### Backend
+### Prerequisites
+- Python 3.11+
+- Node.js 18+
+- MongoDB (optional, for persistence)
+
+### Backend Setup
 ```bash
 cd backend
 pip install -r requirements.txt
+
+# Set environment variables (optional)
+export MONGO_URL="your_mongodb_connection_string"
+
+# Run server
 python app.py
 # Server: http://localhost:5001
 ```
 
-### Frontend
+### Frontend Setup
 ```bash
 cd frontend
 npm install
-npm start
-# App: http://localhost:3000
+npm run dev
+# App: http://localhost:5173
+```
+
+---
+
+## 🏗️ Architecture
+```
+┌─────────────────────────────────────────────────────────┐
+│  Frontend (React)                                       │
+│  ├─ SQL Terminal                                        │
+│  ├─ Table Browser                                       │
+│  ├─ Query Results Viewer                               │
+│  └─ CSV/Excel Upload                                   │
+└────────────────────┬────────────────────────────────────┘
+                     │ HTTP/REST API
+┌────────────────────▼────────────────────────────────────┐
+│  Backend (Flask)                                        │
+│  ├─ SQL Parser (Regex-based)                           │
+│  ├─ Query Executor                                     │
+│  ├─ Table Manager                                      │
+│  └─ Authentication                                     │
+└────────────────────┬────────────────────────────────────┘
+                     │
+        ┌────────────┴──────────────┐
+        │                           │
+┌───────▼────────┐         ┌────────▼─────────┐
+│  JSON Storage  │         │  MongoDB Atlas   │
+│  (Local Cache) │         │  (Persistence)   │
+└────────────────┘         └──────────────────┘
+        │                           │
+┌───────▼────────┐         ┌────────▼─────────┐
+│ Pickle Indexes │         │  Index Schema    │
+│ (Hash + B-tree)│         │  (Rebuild Ready) │
+└────────────────┘         └──────────────────┘
+```
+
+---
+
+## 🧠 Smart Indexing
+
+### How It Works
+
+LiteSQL automatically chooses the optimal index type based on column characteristics:
+
+**Hash Indexes (O(1) lookup):**
+- Columns with unique patterns: `id`, `email`, `username`, `phone`, `uuid`, `token`
+- Perfect for: `WHERE id = 5` (exact match queries)
+
+**B-tree Indexes (O(log n) range queries):**
+- Numeric types: `INT`, `FLOAT`
+- Duplicate-prone columns: `name`, `age`, `price`, `city`, `status`
+- Perfect for: `WHERE age > 25` (range queries)
+
+### Auto-Detection Example
+```sql
+CREATE TABLE users (id INT, email TEXT, name TEXT, age INT)
+```
+
+**LiteSQL automatically creates:**
+- 🚀 Hash index on `id` (unique pattern)
+- 🚀 Hash index on `email` (unique pattern)
+- 🌳 B-tree index on `name` (duplicate values expected)
+- 🌳 B-tree index on `age` (numeric range queries)
+
+### Manual Override with Hints
+```sql
+-- Force specific index types
+CREATE TABLE products (
+    sku TEXT HASH,        -- Hash index (user specified)
+    name TEXT BTREE,      -- B-tree index (user specified)
+    description TEXT NONE -- No index (user specified)
+)
+
+-- Add columns with hints
+ADD COLUMNS INTO products (
+    barcode TEXT HASH,
+    tags TEXT NONE
+)
+```
+
+**Supported Hints:**
+- `HASH` - Force hash index (fast exact lookups)
+- `BTREE` - Force B-tree index (range queries)
+- `NONE` - No index (save space, faster inserts)
+
+### Index Visualization
+```sql
+SHOW PICKLE FILE OF users
+```
+
+**Output:**
+```
+============================================================
+📦 PICKLE FILE: users_indexes.pkl
+============================================================
+
+🚀 Hash Indexes (2):
+   id: 150 entries
+      1 → {'id': 1, 'name': 'Alice', 'email': 'alice@example.com'}
+      2 → {'id': 2, 'name': 'Bob', 'email': 'bob@example.com'}
+      ...
+
+🌳 B-tree Indexes (2):
+   name: 85 unique keys
+      Keys: ['Alice', 'Bob', 'Charlie', 'David', 'Eve']
+      Alice → [{'id': 1, 'name': 'Alice', ...}]
+      Bob → [{'id': 2, 'name': 'Bob', ...}, {'id': 15, 'name': 'Bob', ...}]
+      ...
+   
+   age: 45 unique keys
+      Keys: [18, 19, 20, 21, 22, ...]
+      25 → [{'id': 5, 'age': 25, ...}, {'id': 12, 'age': 25, ...}]
+      ...
+
+============================================================
 ```
 
 ---
 
 ## 📝 SQL Commands
 
----
+### Table Management
 
-### 1. CREATE TABLE
-
-Create a new table with columns and types.
-
-**Syntax:**
+#### CREATE TABLE
 ```sql
 CREATE TABLE tablename (col1 TYPE, col2 TYPE, ...)
+
+-- With index hints
+CREATE TABLE tablename (
+    col1 TYPE HASH,
+    col2 TYPE BTREE,
+    col3 TYPE NONE
+)
 ```
 
-**Supported Types:** `INT` `FLOAT` `TEXT` `DATE`
+**Supported Types:** `INT`, `FLOAT`, `STR` (or `TEXT`)
 
 **Examples:**
 ```sql
-CREATE TABLE users (id INT, name TEXT, age INT)
+-- Auto-indexing
+CREATE TABLE users (id INT, name STR, age INT)
 
-CREATE TABLE orders (id INT, customer_id INT, date TEXT, amount FLOAT)
+-- Manual control
+CREATE TABLE products (
+    id INT HASH,
+    sku STR HASH,
+    name STR BTREE,
+    description STR NONE,
+    price FLOAT BTREE
+)
+```
 
-CREATE TABLE products (id INT, name TEXT, price FLOAT, stock INT)
+#### DROP TABLE
+```sql
+DROP tablename
+```
+
+#### ADD COLUMNS
+```sql
+ADD COLUMNS INTO tablename (col1 TYPE, col2 TYPE, ...)
+
+-- With hints
+ADD COLUMNS INTO tablename (
+    col1 TYPE HASH,
+    col2 TYPE NONE
+)
+```
+
+**Examples:**
+```sql
+-- Auto-indexing
+ADD COLUMNS INTO users (email STR, phone STR)
+
+-- Manual control
+ADD COLUMNS INTO users (
+    email STR HASH,
+    bio STR NONE
+)
+```
+
+#### SHOW INDEXES
+```sql
+SHOW INDEXES OF tablename
+SHOW PICKLE FILE OF tablename
 ```
 
 ---
 
-### 2. INSERT
+### Data Operations
 
-Insert one or multiple rows into a table.
-
-**Syntax:**
-```sql
-INSERT INTO tablename VALUES (val1, val2, ...), (val1, val2, ...)
-```
-
-**Examples:**
+#### INSERT
 ```sql
 -- Single row
-INSERT INTO users VALUES (1, 'Alice', 25)
+INSERT INTO tablename VALUES (val1, val2, ...)
 
 -- Multiple rows
-INSERT INTO users VALUES (1, 'Alice', 25), (2, 'Bob', 30), (3, 'Charlie', 22)
-
--- With text values
-INSERT INTO orders VALUES (1, 101, '2026-01-20', 500)
-```
-
----
-
-### 3. SELECT
-
-Fetch all rows or specific columns from a table.
-
-**Syntax:**
-```sql
-SELECT * FROM tablename
-
-SELECT col1, col2 FROM tablename
+INSERT INTO tablename VALUES (val1, val2, ...), (val3, val4, ...)
 ```
 
 **Examples:**
 ```sql
--- All columns
-SELECT * FROM users
+INSERT INTO users VALUES (1, 'Alice', 25)
 
--- Specific columns
-SELECT name, age FROM users
+INSERT INTO users VALUES 
+    (1, 'Alice', 25), 
+    (2, 'Bob', 30), 
+    (3, 'Charlie', 22)
 ```
 
----
+#### SELECT
+```sql
+SELECT * FROM tablename
+```
 
-### 4. WHERE
-
-Filter rows based on a condition.
-
-**Syntax:**
+#### WHERE
 ```sql
 SELECT * FROM tablename WHERE column OPERATOR value
 ```
 
-**Supported Operators:** `=` `>` `<` `>=` `<=` `!=`
+**Operators:** `=`, `>`, `<`, `>=`, `<=`, `!=`, `IS NULL`, `IS NOT NULL`
 
 **Examples:**
 ```sql
-SELECT * FROM users WHERE age = 25
+-- Exact match (uses hash index if available)
+SELECT * FROM users WHERE id = 5
 
-SELECT * FROM users WHERE age > 20
+-- Range query (uses B-tree index)
+SELECT * FROM users WHERE age > 25
 
-SELECT * FROM orders WHERE amount < 500
+-- Text with spaces (quotes optional)
+SELECT * FROM regions WHERE name = Central America and the Caribbean
+SELECT * FROM regions WHERE name = 'Central America and the Caribbean'
 
-SELECT * FROM users WHERE name != 'Alice'
+-- NULL checks
+SELECT * FROM users WHERE email IS NULL
+SELECT * FROM users WHERE email IS NOT NULL
 
-SELECT * FROM orders WHERE amount >= 300
+-- Special characters
+SELECT * FROM contacts WHERE phone = +91-9876543210
+SELECT * FROM users WHERE email = john@example.com
 ```
 
----
-
-### 5. ORDER BY
-
-Sort results by a column.
-
-**Syntax:**
-```sql
-SELECT * FROM tablename ORDER BY column ASC
-
-SELECT * FROM tablename ORDER BY column DESC
-
-SELECT * FROM tablename ORDER BY column ASC LIMIT 10
-
-SELECT * FROM tablename ORDER BY column DESC LIMIT 10 OFFSET 5
-```
-
-**Examples:**
-```sql
-SELECT * FROM users ORDER BY age ASC
-
-SELECT * FROM orders ORDER BY amount DESC
-
-SELECT * FROM users ORDER BY id ASC LIMIT 5
-
-SELECT * FROM users ORDER BY id ASC LIMIT 5 OFFSET 10
-```
-
----
-
-### 6. LIMIT & OFFSET
-
-Paginate results.
-
-**Syntax:**
-```sql
-SELECT * FROM tablename LIMIT number
-
-SELECT * FROM tablename LIMIT number OFFSET number
-```
-
-**Examples:**
-```sql
--- First 10 rows
-SELECT * FROM users LIMIT 10
-
--- Skip 5, get next 10
-SELECT * FROM users LIMIT 10 OFFSET 5
-
--- Rows 21-30
-SELECT * FROM users LIMIT 10 OFFSET 20
-```
-
----
-
-### 7. DISTINCT ON
-
-Get unique rows based on specific columns.
-
-**Syntax:**
-```sql
-SELECT DISTINCT ON (column) * FROM tablename
-
-SELECT DISTINCT ON (column) col1, col2 FROM tablename
-
-SELECT DISTINCT ON (column) * FROM tablename ORDER BY column ASC
-```
-
-**Examples:**
-```sql
--- Unique customers
-SELECT DISTINCT ON (customer_id) * FROM orders
-
--- Unique with specific columns
-SELECT DISTINCT ON (customer_id) customer_id, amount FROM orders
-
--- Unique ordered ascending
-SELECT DISTINCT ON (customer_id) * FROM orders ORDER BY customer_id ASC
-
--- Unique ordered descending
-SELECT DISTINCT ON (customer_id) * FROM orders ORDER BY customer_id DESC
-
--- Multiple column distinct
-SELECT DISTINCT ON (customer_id, date) * FROM orders
-```
-
----
-
-### 8. GROUP BY
-
-Aggregate data by a column.
-
-**Syntax:**
-```sql
-SELECT col, AGGREGATE(col) FROM tablename GROUP BY column
-```
-
-**Supported Aggregates:** `COUNT(*)` `SUM(col)` `AVG(col)` `MIN(col)` `MAX(col)`
-
-**Examples:**
-```sql
--- Count per group
-SELECT customer_id, COUNT(*) FROM orders GROUP BY customer_id
-
--- Sum per group
-SELECT customer_id, SUM(amount) FROM orders GROUP BY customer_id
-
--- Average per group
-SELECT customer_id, AVG(amount) FROM orders GROUP BY customer_id
-
--- Min and Max
-SELECT customer_id, MIN(amount), MAX(amount) FROM orders GROUP BY customer_id
-
--- Multiple aggregates
-SELECT customer_id, COUNT(*), SUM(amount), AVG(amount) FROM orders GROUP BY customer_id
-
--- With WHERE filter
-SELECT customer_id, SUM(amount) FROM orders WHERE amount > 100 GROUP BY customer_id
-```
-
----
-
-### 9. UPDATE
-
-Update existing rows based on a condition.
-
-**Syntax:**
+#### UPDATE
 ```sql
 UPDATE tablename SET column = value WHERE column OPERATOR value
 ```
 
-**Examples:**
+**Example:**
 ```sql
 UPDATE users SET age = 26 WHERE name = 'Alice'
-
-UPDATE orders SET amount = 600 WHERE id = 1
-
-UPDATE users SET name = 'Alicia' WHERE id = 1
 ```
 
----
-
-### 10. DELETE
-
-Delete rows from a table.
-
-**Syntax:**
+#### DELETE
 ```sql
--- Delete with condition
+-- Delete specific rows
 DELETE FROM tablename WHERE column OPERATOR value
 
--- Delete all rows (keep table)
+-- Delete all rows (keep structure)
 DELETE ALL ROWS OF tablename
 
 -- Delete all columns
 DELETE * COLUMNS OF tablename
 ```
 
-**Examples:**
+---
+
+### Sorting & Filtering
+
+#### ORDER BY
 ```sql
-DELETE FROM users WHERE id = 1
+SELECT * FROM tablename ORDER BY column ASC
+SELECT * FROM tablename ORDER BY column DESC
+```
 
-DELETE FROM orders WHERE amount < 100
+#### LIMIT & OFFSET
+```sql
+SELECT * FROM tablename LIMIT 10
+SELECT * FROM tablename LIMIT 10 OFFSET 5
+```
 
-DELETE ALL ROWS OF users
+#### DISTINCT ON
+```sql
+SELECT DISTINCT ON (column) * FROM tablename
+SELECT DISTINCT ON (column) * FROM tablename ORDER BY column ASC
+```
 
-DELETE * COLUMNS OF users
+#### GROUP BY
+```sql
+SELECT col, AGGREGATE(col) FROM tablename GROUP BY column
+```
+
+**Aggregates:** `COUNT(*)`, `SUM(col)`, `AVG(col)`, `MIN(col)`, `MAX(col)`
+
+**Example:**
+```sql
+SELECT customer_id, COUNT(*), SUM(amount) 
+FROM orders 
+GROUP BY customer_id
 ```
 
 ---
 
-### 11. DROP
+### File Import
 
-Delete an entire table permanently.
+#### Via UI
+Use **📁 Import Data** panel in sidebar
 
-**Syntax:**
+#### Via SQL
 ```sql
-DROP tablename
-```
-
-**Examples:**
-```sql
-DROP users
-
-DROP orders
-```
-
-> ⚠️ **Warning:** This permanently deletes the table and all its data!
-
----
-
-### 12. ADD COLUMNS
-
-Add new columns to an existing table.
-
-**Syntax:**
-```sql
-ADD COLUMNS INTO tablename (col1 TYPE, col2 TYPE, ...)
-```
-
-**Examples:**
-```sql
--- Single column
-ADD COLUMNS INTO users (email TEXT)
-
--- Multiple columns
-ADD COLUMNS INTO users (email TEXT, phone INT, city TEXT)
-```
-
----
-
-### 13. SHOW INDEXES
-
-View hash and B-tree indexes for a table.
-
-**Syntax:**
-```sql
-SHOW PICKLE FILE OF tablename
-```
-
-**Examples:**
-```sql
-SHOW PICKLE FILE OF users
-
-SHOW PICKLE FILE OF orders
-```
-
-> 💡 Click the **📦 Indexes** button in the UI!
-
----
-
-### 14. File Import
-
-Import data from CSV or Excel files via UI or SQL.
-
-**Via UI:** Use **📁 Import Data** panel in the sidebar.
-
-**Via SQL:**
-```sql
--- CSV file
+-- CSV
 INSERT FROM 'users.csv' INTO users
 
--- Excel file
+-- Excel
 INSERT FROM 'orders.xlsx' INTO orders
 
--- Excel with specific sheet
+-- Specific sheet
 INSERT FROM 'data.xlsx' INTO sales SHEET Sheet1
 ```
 
 ---
 
 ## 📊 Complete Example
-
 ```sql
--- 1. Create table
-CREATE TABLE orders (id INT, customer_id INT, date TEXT, amount FLOAT)
+-- 1. Create table with smart indexing
+CREATE TABLE orders (
+    id INT,
+    customer_id INT,
+    date STR,
+    amount FLOAT
+)
+-- Auto-creates: id → Hash, customer_id → Hash, date → B-tree, amount → B-tree
 
 -- 2. Insert data
-INSERT INTO orders VALUES (1, 1, '2026-01-20', 500), (2, 1, '2026-01-25', 300), (3, 2, '2026-01-22', 750), (4, 3, '2026-01-28', 1000)
+INSERT INTO orders VALUES 
+    (1, 101, '2026-01-20', 500),
+    (2, 101, '2026-01-25', 300),
+    (3, 102, '2026-01-22', 750),
+    (4, 103, '2026-01-28', 1000)
 
--- 3. View all
-SELECT * FROM orders
+-- 3. View indexes
+SHOW PICKLE FILE OF orders
 
--- 4. Filter
+-- 4. Exact lookup (O(1) via hash index)
+SELECT * FROM orders WHERE id = 2
+
+-- 5. Range query (O(log n) via B-tree)
 SELECT * FROM orders WHERE amount > 400
 
--- 5. Sort
-SELECT * FROM orders ORDER BY amount DESC
+-- 6. Add column with hint
+ADD COLUMNS INTO orders (status STR HASH)
 
--- 6. Group
+-- 7. Group by
 SELECT customer_id, SUM(amount) FROM orders GROUP BY customer_id
 
--- 7. Distinct
-SELECT DISTINCT ON (customer_id) * FROM orders ORDER BY customer_id ASC
-
 -- 8. Update
-UPDATE orders SET amount = 600 WHERE id = 1
+UPDATE orders SET status = 'completed' WHERE id = 1
 
--- 9. Delete
-DELETE FROM orders WHERE amount < 200
-
--- 10. Drop
+-- 9. Cleanup
 DROP orders
 ```
 
@@ -446,34 +438,33 @@ DROP orders
 
 ## 🔐 Authentication
 
-- Register with username (min 3 chars) and password (min 6 chars)
-- Session valid for **7 days**
-- Each user has **isolated private database**
-- Other users **cannot see** your tables ✅
+- **Registration**: Username (min 3 chars) + Password (min 6 chars)
+- **Session**: Valid for 7 days
+- **Isolation**: Each user has private database
+- **Security**: SHA256 password hashing
 
 ---
 
-## 🗂️ Data Types
+## 🛠️ Tech Stack
 
-| Type | Description | Example |
-|------|-------------|---------|
-| `INT` | Integer | `1`, `100`, `-5` |
-| `FLOAT` | Decimal | `3.14`, `99.99` |
-| `TEXT` | String | `'Alice'` |
-| `DATE` | Date | `'2026-01-20'` |
+**Backend:**
+- Python 3.11
+- Flask 3.0 (REST API)
+- Regex-based SQL Parser
+- Pickle (Index Serialization)
+- MongoDB Atlas (Persistence)
+- SHA256 (Authentication)
 
----
+**Frontend:**
+- React 18
+- Vite (Build Tool)
+- CSS3 (Styling)
+- Fetch API
 
-## ⚡ Operators
-
-| Operator | Meaning |
-|----------|---------|
-| `=` | Equal |
-| `>` | Greater than |
-| `<` | Less than |
-| `>=` | Greater or equal |
-| `<=` | Less or equal |
-| `!=` | Not equal |
+**Storage:**
+- JSON (Table Data)
+- Pickle (Index Structures)
+- MongoDB (Cloud Backup)
 
 ---
 
@@ -481,25 +472,99 @@ DROP orders
 
 | Service | Purpose | URL | Cost |
 |---------|---------|-----|------|
-| [Render](https://render.com) | Backend | [litesql.onrender.com](https://litesql.onrender.com) | Free |
-| [Vercel](https://vercel.com) | Frontend | [litesql.vercel.app](https://litesql.vercel.app) | Free |
-| [UptimeRobot](https://uptimerobot.com) | Keep alive | - | Free |
+| **Render** | Backend API | [litesql.onrender.com](https://litesql.onrender.com) | Free |
+| **Vercel** | Frontend | [litesql.vercel.app](https://litesql.vercel.app) | Free |
+| **MongoDB Atlas** | Database | - | Free (512MB) |
+| **UptimeRobot** | Keep Alive | - | Free |
 
-> ⚠️ **Render Free Tier Sleep Issue:**
-> The backend goes to sleep after **15 minutes** of inactivity.
-> First request after sleep takes **30-60 seconds** to wake up.
-> To fix this, use [UptimeRobot](https://uptimerobot.com) to ping every 5 minutes.
+### Render Sleep Fix
+
+Backend sleeps after 15 min inactivity. Use [UptimeRobot](https://uptimerobot.com):
+1. Create monitor: HTTP(s)
+2. URL: `https://litesql.onrender.com`
+3. Interval: 5 minutes
+4. Done! Backend stays awake ✅
 
 ---
 
-## 🛠️ Tech Stack
+## 📚 Implementation Details
 
-**Backend:** Python 3.11 · Flask · JSON Storage · SHA256 Auth
+### Indexing Strategy
 
-**Frontend:** React 18 · CSS3 · Fetch API
+**Pattern-based Auto-detection:**
+```python
+unique_patterns = {
+    "id", "email", "username", "phone", "uuid", "token", ...
+}
+
+duplicate_patterns = {
+    "name", "age", "price", "city", "status", ...
+}
+
+# Decision logic
+if col_name in unique_patterns:
+    create_hash_index()
+elif col_type in ["INT", "FLOAT"]:
+    create_btree_index()
+elif col_name in duplicate_patterns:
+    create_btree_index()
+else:
+    create_btree_index()  # Safe default
+```
+
+### Schema Evolution
+
+When adding columns, LiteSQL:
+1. Updates all existing rows with `NULL` for new columns
+2. Clears existing index data
+3. Rebuilds indexes from updated rows
+4. Maintains index type consistency
+
+This ensures old and new rows have identical schemas in indexes.
+
+### Persistence Flow
+```
+User Action → Table Manager → JSON File → MongoDB Sync
+                    ↓
+              Index Update → Pickle File
+```
+
+On backend restart:
+```
+MongoDB → Load Tables → Load Index Schema → Rebuild Indexes from Rows
+```
+
+---
+
+## 🎯 Future Enhancements
+
+- [ ] JOIN operations
+- [ ] Transactions (BEGIN/COMMIT/ROLLBACK)
+- [ ] Query execution planner (EXPLAIN)
+- [ ] Full-text search indexes
+- [ ] Concurrent user access control
+- [ ] Query performance analytics
+
+---
+
+## 📄 License
+
+MIT License - Feel free to use for learning!
 
 ---
 
 ## ⭐ Support
 
-Give a ⭐ if you like this project!
+Give a ⭐ if this helped you understand databases better!
+
+Built with 💙 to learn database internals from scratch.
+
+---
+
+## 🤝 Contributing
+
+This is a learning project. Suggestions welcome!
+
+---
+
+**Made by Shashwat Raj** | [GitHub](https://github.com/Shashwat8732) | [LinkedIn](https://www.linkedin.com/in/shashwat-raj-67146327a)
