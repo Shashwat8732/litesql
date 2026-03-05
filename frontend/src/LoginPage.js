@@ -1,8 +1,3 @@
-// ========================================
-// LoginPage.js - Login/Register Component
-// Save as: src/LoginPage.js
-// ========================================
-
 import React, { useState } from 'react';
 import './LoginPage.css';
 
