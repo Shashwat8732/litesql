@@ -25,7 +25,42 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
   
+  const [showCommandSidebar, setShowCommandSidebar] = useState(true);
+  const [expandedSection, setExpandedSection] = useState('table');
+  
   const backendUrl = 'https://litesql.onrender.com';
+
+  const commandSections = {
+    table: {
+      title: '📋 Table Management',
+      commands: [
+        { name: 'CREATE TABLE', syntax: 'CREATE TABLE users (id INT, name STR)', hint: 'Add HASH/BTREE/NONE after type' },
+        { name: 'DROP TABLE', syntax: 'DROP users' },
+        { name: 'ADD COLUMNS', syntax: 'ADD COLUMNS INTO users (email STR HASH)' },
+        { name: 'SHOW INDEXES', syntax: 'SHOW PICKLE FILE OF users' }
+      ]
+    },
+    data: {
+      title: '📊 Data Operations',
+      commands: [
+        { name: 'INSERT', syntax: "INSERT INTO users VALUES (1, 'Alice', 25)" },
+        { name: 'SELECT', syntax: 'SELECT * FROM users' },
+        { name: 'WHERE', syntax: 'SELECT * FROM users WHERE age > 25' },
+        { name: 'UPDATE', syntax: "UPDATE users SET age = 26 WHERE name = 'Alice'" },
+        { name: 'DELETE', syntax: 'DELETE FROM users WHERE id = 1' }
+      ]
+    },
+    query: {
+      title: '🔍 Query Features',
+      commands: [
+        { name: 'ORDER BY', syntax: 'SELECT * FROM users ORDER BY age DESC' },
+        { name: 'LIMIT', syntax: 'SELECT * FROM users LIMIT 10' },
+        { name: 'OFFSET', syntax: 'SELECT * FROM users LIMIT 10 OFFSET 5' },
+        { name: 'GROUP BY', syntax: 'SELECT age, COUNT(*) FROM users GROUP BY age' },
+        { name: 'DISTINCT', syntax: 'SELECT DISTINCT ON (age) * FROM users' }
+      ]
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('session_token');
@@ -166,6 +201,11 @@ function App() {
     setSqlInput('');
   };
 
+  const copyCommand = (syntax) => {
+    navigator.clipboard.writeText(syntax);
+    showMessage(`Copied: ${syntax}`, 'success');
+  };
+
   useEffect(() => {
     const handleKeyPress = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -175,6 +215,7 @@ function App() {
     };
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sqlInput]);
 
   const handleFileUpload = async () => {
@@ -414,6 +455,62 @@ function App() {
 
   return (
     <div className="app">
+      {/* NEW: Command Sidebar */}
+      {showCommandSidebar && (
+        <div className="command-sidebar">
+          <div className="command-sidebar-header">
+            <h3>📖 SQL Commands</h3>
+            <p>Click to copy</p>
+          </div>
+
+          <div className="command-sections">
+            {Object.entries(commandSections).map(([key, section]) => (
+              <div key={key} className="command-section">
+                <div 
+                  className="section-header"
+                  onClick={() => setExpandedSection(expandedSection === key ? null : key)}
+                >
+                  <span>{section.title}</span>
+                  <span className="expand-icon">
+                    {expandedSection === key ? '▼' : '▶'}
+                  </span>
+                </div>
+
+                {expandedSection === key && (
+                  <div className="section-content">
+                    {section.commands.map((cmd, idx) => (
+                      <div key={idx} className="command-item">
+                        <div className="command-name">{cmd.name}</div>
+                        <div 
+                          className="command-syntax"
+                          onClick={() => copyCommand(cmd.syntax)}
+                          title="Click to copy"
+                        >
+                          {cmd.syntax}
+                        </div>
+                        {cmd.hint && (
+                          <div className="command-hint">💡 {cmd.hint}</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="command-sidebar-footer">
+            <div className="index-hint">
+              <strong>🚀 Index Hints:</strong>
+              <p><code>HASH</code> → O(1) lookups</p>
+              <p><code>BTREE</code> → Range queries</p>
+              <p><code>NONE</code> → No index</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tables List Sidebar */}
       <div className="sidebar">
         <div className="sidebar-title">
           Tables ({tables.length})
@@ -541,6 +638,24 @@ function App() {
             }}
           >
             {uploading ? '⏳ Uploading...' : '📤 Upload'}
+          </button>
+
+          <button
+            onClick={() => setShowCommandSidebar(!showCommandSidebar)}
+            style={{
+              padding: '8px',
+              width: '100%',
+              background: '#334',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '11px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginBottom: '8px'
+            }}
+          >
+            {showCommandSidebar ? '◀ Hide Commands' : '▶ Show Commands'}
           </button>
 
           <button
