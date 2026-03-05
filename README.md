@@ -439,7 +439,6 @@ DROP orders
 ## 🔐 Authentication
 
 - **Registration**: Username (min 3 chars) + Password (min 6 chars)
-- **Session**: Valid for 7 days
 - **Isolation**: Each user has private database
 - **Security**: SHA256 password hashing
 
