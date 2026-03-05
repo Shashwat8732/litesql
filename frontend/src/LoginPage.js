@@ -15,7 +15,6 @@ function LoginPage({ onLogin }) {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
       const payload = isLogin 
