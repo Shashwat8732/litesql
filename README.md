@@ -1,5 +1,5 @@
 # 🗄️⚡ LiteSQL
-s
+
 > A lightweight SQL database engine with intelligent indexing — fast, simple, and powerful.
 
 [![Python](https://img.shields.io/badge/Python-3.11-blue)](https://python.org)
