@@ -566,4 +566,4 @@ This is a learning project. Suggestions welcome!
 
 ---
 
-**Made by Shashwat Raj** | [GitHub](https://github.com/Shashwat8732) | [LinkedIn](https://www.linkedin.com/in/shashwat-raj-67146327a)
+**Made by Shashwat Raj** | [GitHub](https://github.com/Shashwat8732) | [LinkedIn](https://www.linkedin.com/in/shashwatraj1412/)
