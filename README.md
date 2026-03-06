@@ -255,7 +255,6 @@ ADD COLUMNS INTO users (
 
 #### SHOW INDEXES
 ```sql
-SHOW INDEXES OF tablename
 SHOW PICKLE FILE OF tablename
 ```
 
