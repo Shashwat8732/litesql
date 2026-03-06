@@ -25,8 +25,8 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
   
-  // NEW: Hamburger menu state
-  const [showCommandSidebar, setShowCommandSidebar] = useState(false);
+  // NEW: Command sidebar state
+  const [showCommandSidebar, setShowCommandSidebar] = useState(true);
   const [expandedSection, setExpandedSection] = useState('table');
   
   const backendUrl = 'https://litesql.onrender.com';
@@ -203,14 +203,9 @@ function App() {
     setSqlInput('');
   };
 
-  const toggleCommandSidebar = () => {
-    setShowCommandSidebar(!showCommandSidebar);
-  };
-
   const copyCommand = (syntax) => {
     navigator.clipboard.writeText(syntax);
     showMessage(`Copied: ${syntax}`, 'success');
-    setShowCommandSidebar(false); // Close sidebar after copy
   };
 
   useEffect(() => {
@@ -462,76 +457,62 @@ function App() {
 
   return (
     <div className="app">
-      {/* Hamburger Button */}
-      <button 
-        className={`hamburger-btn ${showCommandSidebar ? 'active' : ''}`}
-        onClick={toggleCommandSidebar}
-      >
-        <div className="hamburger-line"></div>
-        <div className="hamburger-line"></div>
-        <div className="hamburger-line"></div>
-      </button>
-
-      {/* Overlay */}
-      <div 
-        className={`command-sidebar-overlay ${showCommandSidebar ? 'active' : ''}`}
-        onClick={toggleCommandSidebar}
-      ></div>
-
-      {/* Command Sidebar */}
-      <div className={`command-sidebar ${showCommandSidebar ? 'active' : ''}`}>
-        <div className="command-sidebar-header">
-          <h3>📖 SQL Commands</h3>
-          <p>Click to copy</p>
-        </div>
-
-        <div className="command-sections">
-          {Object.entries(commandSections).map(([key, section]) => (
-            <div key={key} className="command-section">
-              <div 
-                className="section-header"
-                onClick={() => setExpandedSection(expandedSection === key ? null : key)}
-              >
-                <span>{section.title}</span>
-                <span className="expand-icon">
-                  {expandedSection === key ? '▼' : '▶'}
-                </span>
-              </div>
-
-              {expandedSection === key && (
-                <div className="section-content">
-                  {section.commands.map((cmd, idx) => (
-                    <div key={idx} className="command-item" onClick={() => copyCommand(cmd.syntax)}>
-                      <div className="command-name">{cmd.name}</div>
-                      <div className="command-syntax" title="Click to copy">
-                        {cmd.syntax}
-                      </div>
-                      {cmd.hint && (
-                        <div className="command-hint">💡 {cmd.hint}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="command-sidebar-footer">
-          <div className="index-hint">
-            <strong>🚀 Index Hints:</strong>
-            <p><code>HASH</code> → O(1) lookups</p>
-            <p><code>BTREE</code> → Range queries</p>
-            <p><code>NONE</code> → No index</p>
+      {/* NEW: Command Sidebar */}
+      {showCommandSidebar && (
+        <div className="command-sidebar">
+          <div className="command-sidebar-header">
+            <h3>📖 SQL Commands</h3>
+            <p>Click to copy</p>
           </div>
-          
-          <button className="sidebar-logout-btn" onClick={handleLogout}>
-            🚪 Logout
-          </button>
-        </div>
-      </div>
 
-      {/* Tables Sidebar */}
+          <div className="command-sections">
+            {Object.entries(commandSections).map(([key, section]) => (
+              <div key={key} className="command-section">
+                <div 
+                  className="section-header"
+                  onClick={() => setExpandedSection(expandedSection === key ? null : key)}
+                >
+                  <span>{section.title}</span>
+                  <span className="expand-icon">
+                    {expandedSection === key ? '▼' : '▶'}
+                  </span>
+                </div>
+
+                {expandedSection === key && (
+                  <div className="section-content">
+                    {section.commands.map((cmd, idx) => (
+                      <div key={idx} className="command-item">
+                        <div className="command-name">{cmd.name}</div>
+                        <div 
+                          className="command-syntax"
+                          onClick={() => copyCommand(cmd.syntax)}
+                          title="Click to copy"
+                        >
+                          {cmd.syntax}
+                        </div>
+                        {cmd.hint && (
+                          <div className="command-hint">💡 {cmd.hint}</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="command-sidebar-footer">
+            <div className="index-hint">
+              <strong>🚀 Index Hints:</strong>
+              <p><code>HASH</code> → O(1) lookups</p>
+              <p><code>BTREE</code> → Range queries</p>
+              <p><code>NONE</code> → No index</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tables List Sidebar */}
       <div className="sidebar">
         <div className="sidebar-title">
           Tables ({tables.length})
@@ -654,15 +635,50 @@ function App() {
               borderRadius: '4px',
               fontSize: '11px',
               fontWeight: '600',
-              cursor: uploading ? 'not-allowed' : 'pointer'
+              cursor: uploading ? 'not-allowed' : 'pointer',
+              marginBottom: '8px'
             }}
           >
             {uploading ? '⏳ Uploading...' : '📤 Upload'}
           </button>
+
+          <button
+            onClick={() => setShowCommandSidebar(!showCommandSidebar)}
+            style={{
+              padding: '8px',
+              width: '100%',
+              background: '#334',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '11px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginBottom: '8px'
+            }}
+          >
+            {showCommandSidebar ? '◀ Hide Commands' : '▶ Show Commands'}
+          </button>
+
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: '8px',
+              width: '100%',
+              background: '#ff4444',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '11px',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            🚪 Logout
+          </button>
         </div>
       </div>
 
-      {/* Main Area */}
       <div className="main-area" ref={containerRef}>
         <div className="top-bar">
           <div className="db-name"><span>🗄️</span> LiteSQL</div>
