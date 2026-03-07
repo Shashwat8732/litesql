@@ -1,6 +1,6 @@
 /* ========================================
    LoginPage.css - Beautiful Login/Register
-   With Database Icon in Logo
+   With SVG Database Icon
    ======================================== */
 
 .login-container {
@@ -70,10 +70,11 @@
   flex-shrink: 0;
 }
 
-.login-logo::before {
-  content: '🗄️';
-  font-size: 28px;
-  filter: brightness(0) invert(1);
+/* SVG Database Icon */
+.login-logo svg {
+  width: 28px;
+  height: 28px;
+  fill: #0f0f1e;
 }
 
 @keyframes pulse-logo {
@@ -339,8 +340,9 @@
     height: 44px;
   }
   
-  .login-logo::before {
-    font-size: 24px;
+  .login-logo svg {
+    width: 24px;
+    height: 24px;
   }
   
   .backend-notice {
