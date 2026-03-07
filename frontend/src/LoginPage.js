@@ -15,7 +15,7 @@ function LoginPage({ onLogin }) {
     e.preventDefault();
     setError('');
     setLoading(true);
-    
+
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
       const payload = isLogin 
@@ -55,8 +55,11 @@ function LoginPage({ onLogin }) {
     <div className="login-container">
       <div className="login-box">
         <div className="login-header">
-          <h1>🗄️ LiteSQL</h1>
-          <p>Your Personal Database in the Cloud</p>
+          <h1>
+            <span className="login-logo"></span>
+            LiteSQL
+          </h1>
+          <p>Lightweight SQL Database Engine</p>
         </div>
 
         {/* Backend Loading Notice */}
