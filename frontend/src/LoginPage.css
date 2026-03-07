@@ -1,6 +1,6 @@
 /* ========================================
    LoginPage.css - Beautiful Login/Register
-   With SVG Database Icon
+   Fixed Logo Display
    ======================================== */
 
 .login-container {
@@ -48,6 +48,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-shadow: none;
   font-weight: 800;
   letter-spacing: 2px;
   display: flex;
@@ -57,33 +58,23 @@
 }
 
 .login-logo {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px;
-  height: 50px;
+  display: inline-block;
+  width: 45px;
+  height: 45px;
   background: linear-gradient(135deg, #64ffda 0%, #00bfa5 100%);
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(100, 255, 218, 0.6);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(100, 255, 218, 0.5);
   animation: pulse-logo 2s ease-in-out infinite;
   flex-shrink: 0;
 }
 
-/* SVG Database Icon */
-.login-logo svg {
-  width: 28px;
-  height: 28px;
-  fill: #0f0f1e;
-}
-
 @keyframes pulse-logo {
   0%, 100% {
-    box-shadow: 0 4px 20px rgba(100, 255, 218, 0.6);
+    box-shadow: 0 4px 20px rgba(100, 255, 218, 0.5);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 6px 30px rgba(100, 255, 218, 0.9);
+    box-shadow: 0 6px 30px rgba(100, 255, 218, 0.8);
     transform: scale(1.05);
   }
 }
@@ -336,13 +327,8 @@
   }
   
   .login-logo {
-    width: 44px;
-    height: 44px;
-  }
-  
-  .login-logo svg {
-    width: 24px;
-    height: 24px;
+    width: 40px;
+    height: 40px;
   }
   
   .backend-notice {
