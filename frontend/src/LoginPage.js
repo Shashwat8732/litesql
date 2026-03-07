@@ -56,14 +56,7 @@ function LoginPage({ onLogin }) {
       <div className="login-box">
         <div className="login-header">
           <h1>
-            <span className="login-logo">
-              {/* Database SVG Icon */}
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <ellipse cx="12" cy="5" rx="9" ry="3"/>
-                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
-                <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/>
-              </svg>
-            </span>
+            <span className="login-logo"></span>
             LiteSQL
           </h1>
           <p>Lightweight SQL Database Engine</p>
@@ -76,7 +69,7 @@ function LoginPage({ onLogin }) {
             <strong>⚡ First Request? Please Wait!</strong>
             <p>
               Backend hosted on <span className="notice-highlight">free tier</span> takes 
-              <span className="notice-highlight"> 1-2 minutes</span> to wake up on first request.
+              <span className="notice-highlight"> 30-60 seconds</span> to wake up on first request.
             </p>
             <p style={{fontSize: '12px', opacity: 0.9, marginTop: '6px'}}>
               ✅ Subsequent requests will be instant!
