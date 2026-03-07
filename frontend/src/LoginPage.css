@@ -1,3 +1,8 @@
+/* ========================================
+   LoginPage.css - Beautiful Login/Register
+   Fixed Logo Display
+   ======================================== */
+
 .login-container {
   min-height: 100vh;
   display: flex;
@@ -37,18 +42,48 @@
 }
 
 .login-header h1 {
-  font-size: 36px;
-  margin-bottom: 8px;
+  font-size: 42px;
+  margin-bottom: 12px;
   background: linear-gradient(135deg, #64ffda 0%, #00bfa5 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 20px rgba(100, 255, 218, 0.5);
+  background-clip: text;
+  text-shadow: none;
+  font-weight: 800;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.login-logo {
+  display: inline-block;
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, #64ffda 0%, #00bfa5 100%);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(100, 255, 218, 0.5);
+  animation: pulse-logo 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-logo {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(100, 255, 218, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 6px 30px rgba(100, 255, 218, 0.8);
+    transform: scale(1.05);
+  }
 }
 
 .login-header p {
   font-size: 14px;
   color: #888;
   margin: 0;
+  font-weight: 400;
 }
 
 /* Backend Loading Notice */
@@ -60,7 +95,18 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  animation: pulse 2s ease-in-out infinite;
+  animation: pulse-notice 2s ease-in-out infinite;
+}
+
+@keyframes pulse-notice {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(0.98);
+  }
 }
 
 .backend-notice-icon {
@@ -90,17 +136,6 @@
 .backend-notice-content .notice-highlight {
   font-weight: 700;
   color: #78350f;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.95;
-    transform: scale(0.98);
-  }
 }
 
 .login-tabs {
@@ -288,7 +323,12 @@
   }
   
   .login-header h1 {
-    font-size: 28px;
+    font-size: 36px;
+  }
+  
+  .login-logo {
+    width: 40px;
+    height: 40px;
   }
   
   .backend-notice {
