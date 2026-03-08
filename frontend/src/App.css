@@ -1,6 +1,6 @@
 /* =============================================================================
    LiteSQL - Beautiful Enhanced CSS
-   Same layout, Better design!
+   With Animated Database Logo
    ============================================================================= */
 
 /* Global Styles */
@@ -23,76 +23,164 @@ body {
   height: 100vh;
   background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
   color: #e0e0e0;
+  position: relative;
 }
 
 /* =============================================================================
-   COMMAND SIDEBAR (NEW!)
+   HAMBURGER BUTTON
    ============================================================================= */
 
-.command-sidebar {
-  width: 320px;
-  background: rgba(31, 31, 47, 0.9);
+.hamburger-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  background: rgba(100, 255, 218, 0.2);
+  border: 1px solid rgba(100, 255, 218, 0.4);
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
   backdrop-filter: blur(10px);
-  border-right: 1px solid rgba(100, 255, 218, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 42px;
+  height: 42px;
+  justify-content: center;
+  align-items: center;
+}
+
+.hamburger-btn:hover {
+  background: rgba(100, 255, 218, 0.3);
+  border-color: #64ffda;
+  transform: scale(1.05);
+}
+
+.hamburger-line {
+  width: 20px;
+  height: 2px;
+  background: #64ffda;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.hamburger-btn.active .hamburger-line:nth-child(1) {
+  transform: rotate(45deg) translateY(6px);
+}
+
+.hamburger-btn.active .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-btn.active .hamburger-line:nth-child(3) {
+  transform: rotate(-45deg) translateY(-6px);
+}
+
+/* =============================================================================
+   COMMAND SIDEBAR OVERLAY
+   ============================================================================= */
+
+.command-sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.command-sidebar-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.command-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 320px;
+  background: rgba(31, 31, 47, 0.98);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(100, 255, 218, 0.2);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.command-sidebar.active {
+  transform: translateX(0);
 }
 
 .command-sidebar-header {
-  padding: 20px;
-  background: linear-gradient(90deg, rgba(100, 255, 218, 0.1) 0%, transparent 100%);
-  border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+  padding: 24px 20px 20px;
+  background: linear-gradient(90deg, rgba(100, 255, 218, 0.15) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(100, 255, 218, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(10px);
 }
 
 .command-sidebar-header h3 {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: #64ffda;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .command-sidebar-header p {
-  font-size: 11px;
+  font-size: 12px;
   color: #888;
 }
 
 .command-sections {
   flex: 1;
-  padding: 12px;
+  padding: 16px 12px;
 }
 
 .command-section {
-  margin-bottom: 12px;
-  background: rgba(45, 45, 65, 0.5);
-  border-radius: 8px;
+  margin-bottom: 16px;
+  background: rgba(45, 45, 65, 0.6);
+  border-radius: 10px;
   overflow: hidden;
-  border: 1px solid rgba(100, 255, 218, 0.1);
+  border: 1px solid rgba(100, 255, 218, 0.15);
 }
 
 .section-header {
-  padding: 14px 16px;
-  background: rgba(37, 37, 55, 0.8);
+  padding: 16px 18px;
+  background: rgba(37, 37, 55, 0.9);
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-weight: 600;
   color: #e0e0e0;
-  font-size: 13px;
+  font-size: 14px;
   transition: all 0.3s ease;
 }
 
 .section-header:hover {
-  background: rgba(45, 45, 65, 0.9);
+  background: rgba(45, 45, 65, 1);
   color: #64ffda;
 }
 
 .expand-icon {
-  font-size: 12px;
+  font-size: 14px;
   color: #64ffda;
   transition: transform 0.3s ease;
 }
@@ -102,97 +190,145 @@ body {
 }
 
 .section-content {
-  padding: 12px;
+  padding: 14px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .command-item {
-  padding: 12px;
-  margin-bottom: 10px;
-  background: rgba(31, 31, 47, 0.6);
-  border-radius: 6px;
-  border: 1px solid rgba(100, 255, 218, 0.1);
+  padding: 14px;
+  margin-bottom: 12px;
+  background: rgba(31, 31, 47, 0.7);
+  border-radius: 8px;
+  border: 1px solid rgba(100, 255, 218, 0.15);
   transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.command-item:last-child {
+  margin-bottom: 0;
 }
 
 .command-item:hover {
-  background: rgba(45, 45, 65, 0.8);
-  border-color: rgba(100, 255, 218, 0.3);
+  background: rgba(45, 45, 65, 0.9);
+  border-color: rgba(100, 255, 218, 0.4);
   transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(100, 255, 218, 0.2);
 }
 
 .command-name {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: #64ffda;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .command-syntax {
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-size: 11px;
+  font-size: 12px;
   color: #94a3b8;
-  background: rgba(15, 15, 30, 0.8);
-  padding: 10px 12px;
-  border-radius: 4px;
-  cursor: pointer;
+  background: rgba(15, 15, 30, 0.9);
+  padding: 12px 14px;
+  border-radius: 6px;
   transition: all 0.2s;
   word-break: break-all;
   border: 1px solid transparent;
+  line-height: 1.6;
 }
 
-.command-syntax:hover {
+.command-item:hover .command-syntax {
   background: rgba(100, 255, 218, 0.1);
   color: #64ffda;
-  border-color: #64ffda;
+  border-color: rgba(100, 255, 218, 0.3);
 }
 
 .command-hint {
-  margin-top: 8px;
-  font-size: 10px;
+  margin-top: 10px;
+  font-size: 11px;
   color: #fbbf24;
   font-style: italic;
+  padding: 6px 10px;
+  background: rgba(251, 191, 36, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid #fbbf24;
 }
 
 .command-sidebar-footer {
-  padding: 16px;
-  border-top: 1px solid rgba(100, 255, 218, 0.1);
-  background: rgba(15, 15, 30, 0.8);
+  padding: 20px;
+  border-top: 1px solid rgba(100, 255, 218, 0.2);
+  background: rgba(15, 15, 30, 0.9);
+  position: sticky;
+  bottom: 0;
 }
 
 .index-hint {
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .index-hint strong {
   display: block;
   color: #64ffda;
-  margin-bottom: 10px;
-  font-size: 13px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .index-hint p {
-  margin: 6px 0;
+  margin: 8px 0;
   color: #94a3b8;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  font-size: 13px;
 }
 
 .index-hint code {
-  background: rgba(100, 255, 218, 0.1);
-  padding: 3px 8px;
+  background: rgba(100, 255, 218, 0.15);
+  padding: 4px 10px;
   border-radius: 4px;
   color: #64ffda;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
+  border: 1px solid rgba(100, 255, 218, 0.2);
 }
 
-/* =============================================================================
-   SIDEBAR (Tables List)
-   ============================================================================= */
+.sidebar-logout-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 16px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.sidebar-logout-btn:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
 
 .sidebar {
   width: 280px;
@@ -342,7 +478,7 @@ body {
   background: rgba(26, 26, 46, 0.6);
 }
 
-/* Top Bar - Glassmorphism */
+/* Top Bar with Logo */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -357,13 +493,42 @@ body {
 .db-name {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 18px;
+  gap: 12px;
+  font-size: 20px;
   font-weight: 700;
   background: linear-gradient(135deg, #64ffda 0%, #00bfa5 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 2px 8px rgba(100, 255, 218, 0.4));
+}
+
+/* Database Logo in Top Bar */
+.db-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.db-logo svg {
+  width: 100%;
+  height: 100%;
+  color: #64ffda;
+  filter: drop-shadow(0 2px 6px rgba(100, 255, 218, 0.5));
+  animation: pulse-db-logo 2s ease-in-out infinite;
+}
+
+@keyframes pulse-db-logo {
+  0%, 100% {
+    filter: drop-shadow(0 2px 6px rgba(100, 255, 218, 0.5));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 3px 10px rgba(100, 255, 218, 0.8));
+    transform: scale(1.05);
+  }
 }
 
 .db-status {
@@ -442,6 +607,7 @@ body {
 .terminal-actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .btn {
@@ -594,9 +760,6 @@ body {
   flex-direction: column;
 }
 
-/* =============================================================================
-   DATA TABLE - Beautiful Styling
-   ============================================================================= */
 
 .data-table {
   width: 100%;
@@ -657,45 +820,29 @@ body {
   opacity: 0.7;
 }
 
-/* Custom scrollbar */
-.output-body > div::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+/* Scrollbars */
+.output-body > div::-webkit-scrollbar,
+.command-sidebar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.output-body > div::-webkit-scrollbar-track {
+.output-body > div::-webkit-scrollbar-track,
+.command-sidebar::-webkit-scrollbar-track {
   background: rgba(15, 15, 30, 0.6);
 }
 
-.output-body > div::-webkit-scrollbar-thumb {
+.output-body > div::-webkit-scrollbar-thumb,
+.command-sidebar::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #64ffda 0%, #00bfa5 100%);
   border-radius: 5px;
 }
 
-.output-body > div::-webkit-scrollbar-thumb:hover {
+.output-body > div::-webkit-scrollbar-thumb:hover,
+.command-sidebar::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #00bfa5 0%, #64ffda 100%);
 }
 
-.output-body > div::-webkit-scrollbar-corner {
-  background: rgba(15, 15, 30, 0.6);
-}
-
-.command-sidebar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.command-sidebar::-webkit-scrollbar-track {
-  background: rgba(31, 31, 47, 0.3);
-}
-
-.command-sidebar::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #64ffda 0%, #00bfa5 100%);
-  border-radius: 3px;
-}
-
-/* =============================================================================
-   MESSAGE DISPLAY - Enhanced
-   ============================================================================= */
 
 .message {
   padding: 24px;
@@ -705,95 +852,4 @@ body {
   font-size: 14px;
   border-radius: 8px;
   margin: 20px;
-  backdrop-filter: blur(10px);
-  animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.message-icon {
-  font-size: 24px;
-  flex-shrink: 0;
-  filter: drop-shadow(0 2px 8px currentColor);
-}
-
-.message.info {
-  color: #64b5f6;
-  background: rgba(100, 181, 246, 0.1);
-  border: 1px solid rgba(100, 181, 246, 0.3);
-  box-shadow: 0 4px 20px rgba(100, 181, 246, 0.2);
-}
-
-.message.success {
-  color: #64ffda;
-  background: rgba(100, 255, 218, 0.1);
-  border: 1px solid rgba(100, 255, 218, 0.3);
-  box-shadow: 0 4px 20px rgba(100, 255, 218, 0.2);
-}
-
-.message.error {
-  color: #ff6b6b;
-  background: rgba(255, 107, 107, 0.1);
-  border: 1px solid rgba(255, 107, 107, 0.3);
-  box-shadow: 0 4px 20px rgba(255, 107, 107, 0.2);
-}
-
-/* =============================================================================
-   RESPONSIVE
-   ============================================================================= */
-
-@media (max-width: 1400px) {
-  .command-sidebar {
-    width: 280px;
-  }
-  
-  .sidebar {
-    width: 240px;
-  }
-}
-
-@media (max-width: 1024px) {
-  .command-sidebar {
-    display: none;
-  }
-  
-  .sidebar {
-    width: 220px;
-  }
-  
-  .terminal-section {
-    height: 55%;
-  }
-  
-  .output-section {
-    height: 45%;
-  }
-}
-
-@media (max-width: 768px) {
-  .sidebar {
-    width: 200px;
-  }
-  
-  .data-table {
-    font-size: 11px;
-  }
-  
-  .data-table thead th {
-    padding: 8px 10px;
-    font-size: 10px;
-  }
-  
-  .data-table tbody td {
-    padding: 6px 10px;
-  }
-}
+  backdrop-filter: blur(1
