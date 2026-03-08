@@ -681,7 +681,40 @@ function App() {
 
       <div className="main-area" ref={containerRef}>
         <div className="top-bar">
-          <div className="db-name"><span>🗄️</span> LiteSQL</div>
+          <div className="db-name">
+            <span className="db-logo">
+              {/* Animated Database Icon */}
+              <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="25" cy="15" r="3" fill="currentColor" opacity="0.6">
+                  <animate attributeName="cy" values="15;10;15" dur="2s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="40" cy="12" r="2.5" fill="currentColor" opacity="0.5">
+                  <animate attributeName="cy" values="12;8;12" dur="2.5s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="60" cy="18" r="3.5" fill="currentColor" opacity="0.7">
+                  <animate attributeName="cy" values="18;12;18" dur="1.8s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="75" cy="14" r="2" fill="currentColor" opacity="0.5">
+                  <animate attributeName="cy" values="14;10;14" dur="2.2s" repeatCount="indefinite"/>
+                </circle>
+                
+                <ellipse cx="50" cy="75" rx="32" ry="10" fill="currentColor"/>
+                <rect x="18" y="75" width="64" height="15" fill="currentColor"/>
+                <ellipse cx="50" cy="90" rx="32" ry="10" fill="currentColor" opacity="0.7"/>
+                
+                <ellipse cx="50" cy="55" rx="32" ry="10" fill="currentColor"/>
+                <rect x="18" y="55" width="64" height="15" fill="currentColor"/>
+                <ellipse cx="50" cy="70" rx="32" ry="10" fill="currentColor" opacity="0.8"/>
+                
+                <ellipse cx="50" cy="35" rx="32" ry="10" fill="currentColor"/>
+                <rect x="18" y="35" width="64" height="15" fill="currentColor"/>
+                <ellipse cx="50" cy="50" rx="32" ry="10" fill="currentColor" opacity="0.9"/>
+                
+                <ellipse cx="50" cy="35" rx="32" ry="10" fill="currentColor"/>
+              </svg>
+            </span>
+            LiteSQL
+          </div>
           <div className="db-status">
             <span className={`status-dot ${isConnected ? 'connected' : ''}`}></span>
             <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
