@@ -104,7 +104,7 @@ function LoginPage({ onLogin }) {
             <strong>⚡ First Request? Please Wait!</strong>
             <p>
               Backend hosted on <span className="notice-highlight">free tier</span> takes 
-              <span className="notice-highlight"> 30-60 seconds</span> to wake up on first request.
+              <span className="notice-highlight"> 1-2 minutes</span> to wake up on first request.
             </p>
             <p style={{fontSize: '12px', opacity: 0.9, marginTop: '6px'}}>
               ✅ Subsequent requests will be instant!
