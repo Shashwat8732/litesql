@@ -25,11 +25,13 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
   
-  const [showCommandSidebar, setShowCommandSidebar] = useState(false);
+  // NEW: Command sidebar state
+  const [showCommandSidebar, setShowCommandSidebar] = useState(true);
   const [expandedSection, setExpandedSection] = useState('table');
   
   const backendUrl = 'https://litesql.onrender.com';
 
+  // Command sections data
   const commandSections = {
     table: {
       title: '📋 Table Management',
@@ -201,14 +203,9 @@ function App() {
     setSqlInput('');
   };
 
-  const toggleCommandSidebar = () => {
-    setShowCommandSidebar(!showCommandSidebar);
-  };
-
   const copyCommand = (syntax) => {
     navigator.clipboard.writeText(syntax);
     showMessage(`Copied: ${syntax}`, 'success');
-    setShowCommandSidebar(false);
   };
 
   useEffect(() => {
@@ -460,72 +457,62 @@ function App() {
 
   return (
     <div className="app">
-      <button 
-        className={`hamburger-btn ${showCommandSidebar ? 'active' : ''}`}
-        onClick={toggleCommandSidebar}
-      >
-        <div className="hamburger-line"></div>
-        <div className="hamburger-line"></div>
-        <div className="hamburger-line"></div>
-      </button>
-
-      <div 
-        className={`command-sidebar-overlay ${showCommandSidebar ? 'active' : ''}`}
-        onClick={toggleCommandSidebar}
-      ></div>
-
-      <div className={`command-sidebar ${showCommandSidebar ? 'active' : ''}`}>
-        <div className="command-sidebar-header">
-          <h3>📖 SQL Commands</h3>
-          <p>Click to copy</p>
-        </div>
-
-        <div className="command-sections">
-          {Object.entries(commandSections).map(([key, section]) => (
-            <div key={key} className="command-section">
-              <div 
-                className="section-header"
-                onClick={() => setExpandedSection(expandedSection === key ? null : key)}
-              >
-                <span>{section.title}</span>
-                <span className="expand-icon">
-                  {expandedSection === key ? '▼' : '▶'}
-                </span>
-              </div>
-
-              {expandedSection === key && (
-                <div className="section-content">
-                  {section.commands.map((cmd, idx) => (
-                    <div key={idx} className="command-item" onClick={() => copyCommand(cmd.syntax)}>
-                      <div className="command-name">{cmd.name}</div>
-                      <div className="command-syntax" title="Click to copy">
-                        {cmd.syntax}
-                      </div>
-                      {cmd.hint && (
-                        <div className="command-hint">💡 {cmd.hint}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="command-sidebar-footer">
-          <div className="index-hint">
-            <strong>🚀 Index Hints:</strong>
-            <p><code>HASH</code> → O(1) lookups</p>
-            <p><code>BTREE</code> → Range queries</p>
-            <p><code>NONE</code> → No index</p>
+      {/* NEW: Command Sidebar */}
+      {showCommandSidebar && (
+        <div className="command-sidebar">
+          <div className="command-sidebar-header">
+            <h3>📖 SQL Commands</h3>
+            <p>Click to copy</p>
           </div>
-          
-          <button className="sidebar-logout-btn" onClick={handleLogout}>
-            🚪 Logout
-          </button>
-        </div>
-      </div>
 
+          <div className="command-sections">
+            {Object.entries(commandSections).map(([key, section]) => (
+              <div key={key} className="command-section">
+                <div 
+                  className="section-header"
+                  onClick={() => setExpandedSection(expandedSection === key ? null : key)}
+                >
+                  <span>{section.title}</span>
+                  <span className="expand-icon">
+                    {expandedSection === key ? '▼' : '▶'}
+                  </span>
+                </div>
+
+                {expandedSection === key && (
+                  <div className="section-content">
+                    {section.commands.map((cmd, idx) => (
+                      <div key={idx} className="command-item">
+                        <div className="command-name">{cmd.name}</div>
+                        <div 
+                          className="command-syntax"
+                          onClick={() => copyCommand(cmd.syntax)}
+                          title="Click to copy"
+                        >
+                          {cmd.syntax}
+                        </div>
+                        {cmd.hint && (
+                          <div className="command-hint">💡 {cmd.hint}</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="command-sidebar-footer">
+            <div className="index-hint">
+              <strong>🚀 Index Hints:</strong>
+              <p><code>HASH</code> → O(1) lookups</p>
+              <p><code>BTREE</code> → Range queries</p>
+              <p><code>NONE</code> → No index</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tables List Sidebar */}
       <div className="sidebar">
         <div className="sidebar-title">
           Tables ({tables.length})
@@ -648,50 +635,53 @@ function App() {
               borderRadius: '4px',
               fontSize: '11px',
               fontWeight: '600',
-              cursor: uploading ? 'not-allowed' : 'pointer'
+              cursor: uploading ? 'not-allowed' : 'pointer',
+              marginBottom: '8px'
             }}
           >
             {uploading ? '⏳ Uploading...' : '📤 Upload'}
+          </button>
+
+          <button
+            onClick={() => setShowCommandSidebar(!showCommandSidebar)}
+            style={{
+              padding: '8px',
+              width: '100%',
+              background: '#334',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '11px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginBottom: '8px'
+            }}
+          >
+            {showCommandSidebar ? '◀ Hide Commands' : '▶ Show Commands'}
+          </button>
+
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: '8px',
+              width: '100%',
+              background: '#ff4444',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '11px',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            🚪 Logout
           </button>
         </div>
       </div>
 
       <div className="main-area" ref={containerRef}>
         <div className="top-bar">
-          <div className="db-name">
-            <span className="db-logo">
-              {/* Same Database Icon as Login Page */}
-              <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="25" cy="15" r="3" fill="currentColor" opacity="0.6">
-                  <animate attributeName="cy" values="15;10;15" dur="2s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="40" cy="12" r="2.5" fill="currentColor" opacity="0.5">
-                  <animate attributeName="cy" values="12;8;12" dur="2.5s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="60" cy="18" r="3.5" fill="currentColor" opacity="0.7">
-                  <animate attributeName="cy" values="18;12;18" dur="1.8s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="75" cy="14" r="2" fill="currentColor" opacity="0.5">
-                  <animate attributeName="cy" values="14;10;14" dur="2.2s" repeatCount="indefinite"/>
-                </circle>
-                
-                <ellipse cx="50" cy="75" rx="32" ry="10" fill="currentColor"/>
-                <rect x="18" y="75" width="64" height="15" fill="currentColor"/>
-                <ellipse cx="50" cy="90" rx="32" ry="10" fill="currentColor" opacity="0.7"/>
-                
-                <ellipse cx="50" cy="55" rx="32" ry="10" fill="currentColor"/>
-                <rect x="18" y="55" width="64" height="15" fill="currentColor"/>
-                <ellipse cx="50" cy="70" rx="32" ry="10" fill="currentColor" opacity="0.8"/>
-                
-                <ellipse cx="50" cy="35" rx="32" ry="10" fill="currentColor"/>
-                <rect x="18" y="35" width="64" height="15" fill="currentColor"/>
-                <ellipse cx="50" cy="50" rx="32" ry="10" fill="currentColor" opacity="0.9"/>
-                
-                <ellipse cx="50" cy="35" rx="32" ry="10" fill="currentColor"/>
-              </svg>
-            </span>
-            LiteSQL
-          </div>
+          <div className="db-name"><span>🗄️</span> LiteSQL</div>
           <div className="db-status">
             <span className={`status-dot ${isConnected ? 'connected' : ''}`}></span>
             <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
