@@ -56,7 +56,42 @@ function LoginPage({ onLogin }) {
       <div className="login-box">
         <div className="login-header">
           <h1>
-            <span className="login-logo"></span>
+            <span className="login-logo">
+              {/* Modern Database Icon with Rounded Corners + Data Flow */}
+              <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                {/* Data particles floating */}
+                <circle cx="25" cy="15" r="3" fill="#0f0f1e" opacity="0.6">
+                  <animate attributeName="cy" values="15;10;15" dur="2s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="40" cy="12" r="2.5" fill="#0f0f1e" opacity="0.5">
+                  <animate attributeName="cy" values="12;8;12" dur="2.5s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="60" cy="18" r="3.5" fill="#0f0f1e" opacity="0.7">
+                  <animate attributeName="cy" values="18;12;18" dur="1.8s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="75" cy="14" r="2" fill="#0f0f1e" opacity="0.5">
+                  <animate attributeName="cy" values="14;10;14" dur="2.2s" repeatCount="indefinite"/>
+                </circle>
+                
+                {/* Database cylinder - bottom layer */}
+                <ellipse cx="50" cy="75" rx="32" ry="10" fill="#0f0f1e"/>
+                <rect x="18" y="75" width="64" height="15" fill="#0f0f1e"/>
+                <ellipse cx="50" cy="90" rx="32" ry="10" fill="#001a33"/>
+                
+                {/* Database cylinder - middle layer */}
+                <ellipse cx="50" cy="55" rx="32" ry="10" fill="#0f0f1e"/>
+                <rect x="18" y="55" width="64" height="15" fill="#0f0f1e"/>
+                <ellipse cx="50" cy="70" rx="32" ry="10" fill="#002244"/>
+                
+                {/* Database cylinder - top layer */}
+                <ellipse cx="50" cy="35" rx="32" ry="10" fill="#0f0f1e"/>
+                <rect x="18" y="35" width="64" height="15" fill="#0f0f1e"/>
+                <ellipse cx="50" cy="50" rx="32" ry="10" fill="#003355"/>
+                
+                {/* Top lid with glow */}
+                <ellipse cx="50" cy="35" rx="32" ry="10" fill="#0f0f1e"/>
+              </svg>
+            </span>
             LiteSQL
           </h1>
           <p>Lightweight SQL Database Engine</p>
@@ -69,7 +104,7 @@ function LoginPage({ onLogin }) {
             <strong>⚡ First Request? Please Wait!</strong>
             <p>
               Backend hosted on <span className="notice-highlight">free tier</span> takes 
-              <span className="notice-highlight"> 1-2 minutes</span> to wake up on first request.
+              <span className="notice-highlight"> 30-60 seconds</span> to wake up on first request.
             </p>
             <p style={{fontSize: '12px', opacity: 0.9, marginTop: '6px'}}>
               ✅ Subsequent requests will be instant!
