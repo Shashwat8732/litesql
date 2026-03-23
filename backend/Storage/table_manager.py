@@ -1354,110 +1354,142 @@ class TableManager:
         self._print_dict_table(table_name,results)
         return results
                
-    def filter_rows(self, table_name,col,op,value):
-
-       table_file = f"{self.db_path}/{table_name}.json"
-       with open(table_file, "r", encoding="utf-8") as f:
-         table_data = json.load(f)
+    def filter_rows(self, table_name,col,op,value,columns=None):
+        table_file = f"{self.db_path}/{table_name}.json"
+        with open(table_file, "r", encoding="utf-8") as f:
+            table_data = json.load(f)
     
-       columns = table_data["columns"]
-       rows = table_data.get("rows")
-       if col not in columns:
-           print(f"❌ Column '{col}' does not exist in table '{table}'")
-           return []
-       col_type = columns.get(col)
-        
-       if value.upper() in ["NULL", "NONE"]:
-           result = []
-           for row in rows:
-               row_dict = dict(zip(columns.keys(), row))
-               row_value = row_dict.get(col)
-               if op == "=":
-                  if row_value is None or row_value == "None" or row_value == "NULL":
-                      result.append(row_dict)
-               elif op == "!=":
+        table_columns = table_data["columns"]
+        rows = table_data.get("rows")
+    
+        if col not in table_columns:
+            print(f"❌ Column '{col}' does not exist in table '{table_name}'")
+            return []
+    
+        col_type = table_columns.get(col)
+    
+    # Handle NULL checks
+        if value.upper() in ["NULL", "NONE"]:
+            result = []
+            for row in rows:
+                row_dict = dict(zip(table_columns.keys(), row))
+                row_value = row_dict.get(col)
+                if op == "=":
+                    if row_value is None or row_value == "None" or row_value == "NULL":
+                        result.append(row_dict)
+                elif op == "!=":
                     if row_value is not None and row_value != "None" and row_value != "NULL":
-                         result.append(row_dict)
+                        result.append(row_dict)
         
-           return result
-
+        # Apply column filtering
+            if columns and columns != ['*']:
+                result = self._filter_columns(result, columns)
         
-       if col_type=="INT":
-          con_val=int(value)
-       elif col_type=="FLOAT":
-          con_val=float(value)
-       else:
-          con_val=str(value)
-      
-       if table_name not in self.memory_indexes:
-          self._load_indexes(table_name)
-       results=[]
-       if op =="=" and col in self.memory_indexes[table_name]["hash"]:
-          result=self.memory_indexes[table_name]["hash"][col].get(con_val)
-          if result:
-             results=[result]
-          else:
-             results=[]
-       elif op in [">", ">=", "<", "<=","="] and col in self.memory_indexes[table_name]["b_tree"]:
-          btree = self.memory_indexes[table_name]["b_tree"][col]
-          if op == ">":
-            start_idx = bisect.bisect_right(btree["keys"], con_val)
-            for i in range(start_idx, len(btree["keys"])):
-                key = btree["keys"][i]
-                results.extend(btree["values"][key])
-            
-          elif op =="=":
-              start_idx = bisect.bisect_left(btree["keys"], con_val)
-              for i in range(start_idx, len(btree["keys"])):
-                if con_val==btree["keys"][i]:
-                  results.extend(btree["values"][con_val])
-        
-          elif op == ">=":
-            start_idx = bisect.bisect_left(btree["keys"], con_val)
-            for i in range(start_idx, len(btree["keys"])):
-                key = btree["keys"][i]
-                results.extend(btree["values"][key])
-        
-          elif op == "<":
-            end_idx = bisect.bisect_left(btree["keys"], con_val)
-            for i in range(0, end_idx):
-                key = btree["keys"][i]
-                results.extend(btree["values"][key])
-          elif op == "<=":
-            end_idx = bisect.bisect_right(btree["keys"], con_val)
-            for i in range(0, end_idx):
-                key = btree["keys"][i]
-                results.extend(btree["values"][key])
-       elif op == "!=" and col in self.memory_indexes[table_name]["hash"]:
-        for key, row in self.memory_indexes[table_name]["hash"][col].items():
-            if key != con_val:
-                results.append(row)
-      
-       else:
-          all_rows=self.get_allrows(table_name)
-          for row in all_rows:
-             if op=="=" and str(row.get(col))==str(value):
-                results.append(row)
-             elif op==">" and float(row.get(col))>float(value):
-                results.append(row)
-             elif op=="<" and float(row.get(col))<float(value):
-                results.append(row)
-             elif op==">=" and float(row.get(col))>=float(value):
-                results.append(row)
-             elif op=="<=" and float(row.get(col))<=float(value):
-                results.append(row)
-             elif op=="!=" and str(row.get(col))!=str(value):
-                results.append(row)
-       if len(results)==0:
-          print("no matching rows found ❌")
-       else:
-         print(f"✅ found {len(results)} matching rows:")
-       
-       #self._print_dict_table(table_name, results)
-       return results
+            return result
     
-
+    # Convert value based on column type
+        if col_type == "INT":
+            con_val = int(value)
+        elif col_type == "FLOAT":
+            con_val = float(value)
+        else:
+            con_val = str(value)
     
+        if table_name not in self.memory_indexes:
+            self._load_indexes(table_name)
+    
+        results = []
+    
+    # Use indexes for filtering
+        if op == "=" and col in self.memory_indexes[table_name]["hash"]:
+            result = self.memory_indexes[table_name]["hash"][col].get(con_val)
+            if result:
+                results = [result]
+            else:
+                results = []
+    
+        elif op in [">", ">=", "<", "<=", "="] and col in self.memory_indexes[table_name]["b_tree"]:
+            btree = self.memory_indexes[table_name]["b_tree"][col]
+        
+            if op == ">":
+                start_idx = bisect.bisect_right(btree["keys"], con_val)
+                for i in range(start_idx, len(btree["keys"])):
+                    key = btree["keys"][i]
+                    results.extend(btree["values"][key])
+        
+            elif op == "=":
+                start_idx = bisect.bisect_left(btree["keys"], con_val)
+                for i in range(start_idx, len(btree["keys"])):
+                    if con_val == btree["keys"][i]:
+                        results.extend(btree["values"][con_val])
+        
+            elif op == ">=":
+                start_idx = bisect.bisect_left(btree["keys"], con_val)
+                for i in range(start_idx, len(btree["keys"])):
+                    key = btree["keys"][i]
+                    results.extend(btree["values"][key])
+        
+            elif op == "<":
+                end_idx = bisect.bisect_left(btree["keys"], con_val)
+                for i in range(0, end_idx):
+                    key = btree["keys"][i]
+                    results.extend(btree["values"][key])
+        
+            elif op == "<=":
+                end_idx = bisect.bisect_right(btree["keys"], con_val)
+                for i in range(0, end_idx):
+                    key = btree["keys"][i]
+                    results.extend(btree["values"][key])
+    
+        elif op == "!=" and col in self.memory_indexes[table_name]["hash"]:
+            for key, row in self.memory_indexes[table_name]["hash"][col].items():
+                if key != con_val:
+                    results.append(row)
+    
+        else:
+            all_rows = self.get_allrows(table_name)
+            for row in all_rows:
+                if op == "=" and str(row.get(col)) == str(value):
+                    results.append(row)
+                elif op == ">" and float(row.get(col)) > float(value):
+                    results.append(row)
+                elif op == "<" and float(row.get(col)) < float(value):
+                    results.append(row)
+                elif op == ">=" and float(row.get(col)) >= float(value):
+                    results.append(row)
+                elif op == "<=" and float(row.get(col)) <= float(value):
+                    results.append(row)
+                elif op == "!=" and str(row.get(col)) != str(value):
+                    results.append(row)
+    
+        if len(results) == 0:
+            print("no matching rows found ❌")
+        else:
+            print(f"✅ found {len(results)} matching rows:")
+    
+    # Apply column filtering
+        if columns and columns != ['*']:
+            results = self._filter_columns(results, columns)
+    
+        return results
+
+
+    def _filter_columns(self, rows, columns):
+        if not rows or not columns or columns == ['*']:
+            return rows
+    
+        filtered_rows = []
+        for row in rows:
+            filtered_row = {}
+            for col in columns:
+                if col in row:
+                    filtered_row[col] = row[col]
+                else:
+                    print(f"⚠️ Warning: Column '{col}' not found in row")
+            filtered_rows.append(filtered_row)
+    
+        return filtered_rows
+
 
     def limit(self, table_name,limit=None,offset=None):
      table_file = f"{self.db_path}/{table_name}.json"
