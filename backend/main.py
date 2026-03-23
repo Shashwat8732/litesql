@@ -97,12 +97,24 @@ def execute_command(tm, parsed):
         return result if result else []
 
     elif cmd_type == "WHERE":
-        result = tm.filter_rows(parsed["table"], parsed["col"], parsed["op"], parsed["value"])
+        # Extract columns if present (for SELECT col1, col2 FROM table WHERE...)
+        columns = parsed.get("columns", ["*"])
+        result = tm.filter_rows(parsed["table"], parsed["col"], parsed["op"], parsed["value"], columns=columns)
         return result if result else []
         
     elif cmd_type == "SELECT":
-        result = tm._print_table(parsed["table"])
-        return result if result else []
+        # Extract columns from parsed query
+        columns = parsed.get("columns", ["*"])
+        
+        # If specific columns requested, filter the result
+        if columns and columns != ["*"]:
+            all_rows = tm._print_table(parsed["table"])
+            if all_rows:
+                result = tm._filter_columns(all_rows, columns)
+                return result if result else []
+        else:
+            result = tm._print_table(parsed["table"])
+            return result if result else []
     
     return None
 
@@ -220,6 +232,8 @@ def main():
     print("  - CREATE TABLE tablename (col1 TYPE, col2 TYPE)")
     print("  - INSERT INTO tablename VALUES (val1, val2)")
     print("  - SELECT * FROM tablename WHERE Condition")
+    print("  - SELECT col1, col2 FROM tablename WHERE Condition")
+    print("  - SELECT id FROM tablename")
     print("  - SELECT * FROM tablename")
     print("  - DROP tablename")
     print("  - exit (program band karne ke liye)")
