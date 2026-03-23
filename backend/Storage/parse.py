@@ -16,11 +16,11 @@ class parse():
 
     columns={}
     index_hints = {}
-    print(f"\n🔍 PARSER DEBUG:")  # ← ADD THIS
+    print(f"\n🔍 PARSER DEBUG:")
     print(f"   Raw SQL: {sql}")
     for col_def in columns_str.split(","):
         parts=col_def.strip().split()
-        print(f"   Column def: {col_def}")  # ← ADD THIS
+        print(f"   Column def: {col_def}")
         print(f"   Parts: {parts}")
         if len(parts)==2:
             col_name,col_type=parts
@@ -33,7 +33,7 @@ class parse():
         else:
           print(f"❌ Invalid column: {col_def}")
           return None
-    print(f"   Final columns: {columns}")  # ← ADD THIS
+    print(f"   Final columns: {columns}")
     print(f"   Final hints: {index_hints}")
     
     return{
@@ -42,6 +42,7 @@ class parse():
         "columns":columns,
         "index_hints": index_hints if index_hints else None
     }
+    
   @staticmethod
   def parse_insert(sql):
     match=re.match(
@@ -82,6 +83,7 @@ class parse():
         "table":table_name,
         "values":all_rows
     }
+    
   @staticmethod
   def parse_insert_col(sql):
      match=re.match(
@@ -104,6 +106,7 @@ class parse():
         "table":table,
         "columns":columns
     }
+    
   @staticmethod
   def parse_add_column(sql):
      match=re.match(
@@ -166,7 +169,6 @@ class parse():
             part = part.strip()
             
             if "DESC" in part.upper():
-                # Remove DESC and extract column name
                 col = part.upper().replace("DESC", "").strip()
                 order_by.append({
                     "column": col.lower(),
@@ -180,7 +182,6 @@ class parse():
                     "direction": "ASC"
                 })
             
-           
             else:
                 order_by.append({
                     "column": part.lower(),
@@ -195,6 +196,7 @@ class parse():
         "order_by": order_by 
 
     }
+    
   @staticmethod
   def parse_upd_col(sql):
      match=re.match(
@@ -214,7 +216,6 @@ class parse():
         "table": table
     }
   
-   
   @staticmethod
   def parse_csv(sql):
     match=re.match(
@@ -234,6 +235,7 @@ class parse():
         "csv_file":csv_file
 
     }
+    
   @staticmethod
   def parse_excel(sql):
     match=re.match(
@@ -253,6 +255,7 @@ class parse():
         "excel_file":excel_file,
         "sheet":sheet
     }
+    
   @staticmethod
   def parse_show(sql):
      match=re.match(
@@ -282,49 +285,67 @@ class parse():
         "type": "DROP",
         "table":table_name
     }
+    
   @staticmethod
   def parse_get(sql):
+    """
+    Parse SELECT queries - supports both SELECT * and SELECT col1, col2
+    Examples:
+      SELECT * FROM users WHERE id=5
+      SELECT id, name FROM users WHERE age>25
+      SELECT * FROM users WHERE email IS NULL
+    """
     
+    # IS NULL / IS NOT NULL (with column selection)
     null_match = re.match(
-        r"SELECT\s+\*\s+FROM\s+(\w+)\s+WHERE\s+(\w+)\s+IS\s+(NOT\s+)?NULL",
+        r"SELECT\s+(.+?)\s+FROM\s+(\w+)\s+WHERE\s+(\w+)\s+IS\s+(NOT\s+)?NULL",
         sql, re.IGNORECASE
     )
     if null_match:
+        columns_str = null_match.group(1).strip()
+        columns = [col.strip() for col in columns_str.split(',')] if columns_str != '*' else ['*']
+        
         return {
             "type": "WHERE",
-            "table": null_match.group(1),
-            "col": null_match.group(2),
-            "op": "!=" if null_match.group(3) else "=",
-            "value": "NULL"
+            "table": null_match.group(2),
+            "col": null_match.group(3),
+            "op": "!=" if null_match.group(4) else "=",
+            "value": "NULL",
+            "columns": columns
         }
     
-    match = re.match(
-        r"SELECT\s+\*\s+FROM\s+(\w+)\s+WHERE\s+(\w+)\s*(>=|<=|!=|>|<|=)\s*(.+?)(?:\s*;\s*|\s*)$",
+    # SELECT with WHERE clause (with column selection)
+    where_match = re.match(
+        r"SELECT\s+(.+?)\s+FROM\s+(\w+)\s+WHERE\s+(\w+)\s*(>=|<=|!=|>|<|=)\s*(.+?)(?:\s*;\s*|\s*)$",
         sql, re.IGNORECASE
     )
+    if where_match:
+        columns_str = where_match.group(1).strip()
+        columns = [col.strip() for col in columns_str.split(',')] if columns_str != '*' else ['*']
+        
+        table_name = where_match.group(2)
+        col = where_match.group(3)
+        op = where_match.group(4)
+        value = where_match.group(5).strip()
+        
+        value = value.rstrip(';').strip()
+        
+        if (value.startswith("'") and value.endswith("'")) or \
+           (value.startswith('"') and value.endswith('"')):
+            value = value[1:-1]
+        
+        return {
+            "type": "WHERE",
+            "table": table_name,
+            "col": col,
+            "op": op,
+            "value": value,
+            "columns": columns
+        }
     
-    if not match:
-        print("❌ Invalid WHERE format")
-        return None
+    print("❌ Invalid WHERE format")
+    return None
     
-    table_name = match.group(1)
-    col = match.group(2)
-    op = match.group(3)
-    value = match.group(4).strip()
-    
-    value = value.rstrip(';').strip()
-    
-    if (value.startswith("'") and value.endswith("'")) or \
-       (value.startswith('"') and value.endswith('"')):
-        value = value[1:-1]
-    
-    return {
-        "type": "WHERE",
-        "table": table_name,
-        "col": col,
-        "op": op,
-        "value": value
-    }
   @staticmethod
   def parse_limit(sql):
     match=re.match(
@@ -343,6 +364,7 @@ class parse():
         "limit":limit,
         "offset":offset
     }
+    
   @staticmethod
   def parse_update(sql):
     match = re.match(
@@ -369,6 +391,7 @@ class parse():
         "op": op,
         "where_value": where_value
     }
+    
   @staticmethod
   def parse_deleterows(sql):
     match=re.match(
@@ -392,6 +415,7 @@ class parse():
         "op":op,
         "value":value
     }
+    
   @staticmethod
   def parse_delete_allrows(sql):
     match=re.match(
@@ -405,6 +429,7 @@ class parse():
      "type":"ALL",
      "table":table_name
  }
+ 
   @staticmethod
   def parse_delete_allcol(sql):
      match=re.match(
@@ -418,6 +443,7 @@ class parse():
       "type":"ALL COL",
       "table":table_name
   }
+  
   @staticmethod
   def parse_order_by_withcol(sql):
     match=re.match(
@@ -437,6 +463,7 @@ class parse():
         "limit":limit,
         "offset":offset
     }
+    
   @staticmethod
   def parse_group_by(sql):
     match=re.match(
@@ -473,7 +500,6 @@ class parse():
                 "alias": alias
             })
         else:
-           
             columns.append(col)
     
     result = {
@@ -489,6 +515,7 @@ class parse():
         result["where_value"] = where_value
     
     return result
+    
   @staticmethod
   def parse_order_by_full(sql):
     match=re.match(
@@ -514,6 +541,13 @@ class parse():
 
   @staticmethod
   def parse_select(sql):
+    """
+    Parse simple SELECT queries without WHERE
+    Examples:
+      SELECT * FROM users
+      SELECT id, name, email FROM users
+      SELECT id FROM users
+    """
     match=re.match(
         r"SELECT\s+(.+?)\s+FROM\s+(\w+)" ,sql,re.IGNORECASE
     )
@@ -522,8 +556,11 @@ class parse():
         print("❌ Invalid SELECT format")
         return None
     
-    columns=match.group(1).strip()
-    table_name=match.group(2)
+    columns_str = match.group(1).strip()
+    table_name = match.group(2)
+    
+    # Parse columns
+    columns = [col.strip() for col in columns_str.split(',')] if columns_str != '*' else ['*']
 
     return{
      "type":"SELECT",
