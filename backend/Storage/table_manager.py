@@ -651,9 +651,7 @@ class TableManager:
     
       return True
    
-    def a(self,table_name,col):
-       print(f"table_name{table_name},{col}")
-
+    
     def delete(self,table_name):
        table_file=f"{self.db_path}/{table_name}.json"
        table_pickle=f"{self.pickle_path}/{table_name}_indexes.pkl"
@@ -1034,6 +1032,8 @@ class TableManager:
        with open(table_file,"w",encoding="utf-8") as f:
            json.dump(table_data,f,indent=2,ensure_ascii=False)
        print(f"✅ all rows are deleted of table {table_name} ")
+
+
     def delete_all_col(self,table_name):
          table_file=f"{self.db_path}/{table_name}.json"
          with open(table_file,"r",encoding="utf-8") as f:
@@ -1368,7 +1368,7 @@ class TableManager:
     
         col_type = table_columns.get(col)
     
-    # Handle NULL checks
+    
         if value.upper() in ["NULL", "NONE"]:
             result = []
             for row in rows:
@@ -1381,13 +1381,13 @@ class TableManager:
                     if row_value is not None and row_value != "None" and row_value != "NULL":
                         result.append(row_dict)
         
-        # Apply column filtering
+        
             if columns and columns != ['*']:
                 result = self._filter_columns(result, columns)
         
             return result
     
-    # Convert value based on column type
+    
         if col_type == "INT":
             con_val = int(value)
         elif col_type == "FLOAT":
@@ -1400,7 +1400,7 @@ class TableManager:
     
         results = []
     
-    # Use indexes for filtering
+    
         if op == "=" and col in self.memory_indexes[table_name]["hash"]:
             result = self.memory_indexes[table_name]["hash"][col].get(con_val)
             if result:
@@ -1467,7 +1467,7 @@ class TableManager:
         else:
             print(f"✅ found {len(results)} matching rows:")
     
-    # Apply column filtering
+   
         if columns and columns != ['*']:
             results = self._filter_columns(results, columns)
     
