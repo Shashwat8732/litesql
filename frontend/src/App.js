@@ -25,13 +25,13 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
   
-  // NEW: Command sidebar state
+  
   const [showCommandSidebar, setShowCommandSidebar] = useState(true);
   const [expandedSection, setExpandedSection] = useState('table');
   
   const backendUrl = 'https://litesql.onrender.com';
 
-  // Command sections data
+  
   const commandSections = {
     table: {
       title: '📋 Table Management',
@@ -512,7 +512,7 @@ function App() {
         </div>
       )}
 
-      {/* Tables List Sidebar */}
+      
       <div className="sidebar">
         <div className="sidebar-title">
           Tables ({tables.length})
