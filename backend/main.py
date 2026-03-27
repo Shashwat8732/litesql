@@ -181,7 +181,6 @@ def parse_sql(sql_command):
 
 
 def run_sql(sql_command):
-    """Execute SQL without user context (for CLI)"""
     parsed = parse_sql(sql_command)
     
     if parsed is None:
@@ -228,7 +227,7 @@ def main():
     print("=" * 60)
     print("🔥 LiteMySQL - Ek Lightweight SQL Database")
     print("=" * 60)
-    print("\n📖 Commands:")
+    print("\n📖 Basics Commands:")
     print("  - CREATE TABLE tablename (col1 TYPE, col2 TYPE)")
     print("  - INSERT INTO tablename VALUES (val1, val2)")
     print("  - SELECT * FROM tablename WHERE Condition")
