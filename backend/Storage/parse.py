@@ -288,15 +288,6 @@ class parse():
     
   @staticmethod
   def parse_get(sql):
-    """
-    Parse SELECT queries - supports both SELECT * and SELECT col1, col2
-    Examples:
-      SELECT * FROM users WHERE id=5
-      SELECT id, name FROM users WHERE age>25
-      SELECT * FROM users WHERE email IS NULL
-    """
-    
-    # IS NULL / IS NOT NULL (with column selection)
     null_match = re.match(
         r"SELECT\s+(.+?)\s+FROM\s+(\w+)\s+WHERE\s+(\w+)\s+IS\s+(NOT\s+)?NULL",
         sql, re.IGNORECASE
@@ -314,7 +305,7 @@ class parse():
             "columns": columns
         }
     
-    # SELECT with WHERE clause (with column selection)
+    
     where_match = re.match(
         r"SELECT\s+(.+?)\s+FROM\s+(\w+)\s+WHERE\s+(\w+)\s*(>=|<=|!=|>|<|=)\s*(.+?)(?:\s*;\s*|\s*)$",
         sql, re.IGNORECASE
