@@ -1,8 +1,3 @@
-/* ========================================
-   LoginPage.css - Beautiful Login/Register
-   With Animated Database Icon
-   ======================================== */
-
 .login-container {
   min-height: 100vh;
   display: flex;
@@ -94,7 +89,6 @@
   font-weight: 400;
 }
 
-/* Backend Loading Notice */
 .backend-notice {
   margin: 20px;
   padding: 16px;
@@ -324,7 +318,7 @@
   text-decoration: underline;
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
   .login-box {
     max-width: 100%;
