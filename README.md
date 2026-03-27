@@ -545,10 +545,6 @@ MongoDB → Load Tables → Load Index Schema → Rebuild Indexes from Rows
 
 ---
 
-## 📄 License
-
-MIT License - Feel free to use for learning!
-
 ---
 
 ## ⭐ Support
