@@ -545,8 +545,6 @@ MongoDB → Load Tables → Load Index Schema → Rebuild Indexes from Rows
 
 ---
 
----
-
 ## ⭐ Support
 
 Give a ⭐ if this helped you understand databases better!
