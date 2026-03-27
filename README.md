@@ -283,7 +283,8 @@ INSERT INTO users VALUES
 
 #### SELECT
 ```sql
-SELECT * FROM tablename
+SELECT * FROM tablename,
+SELECT id, name FROM tablename
 ```
 
 #### WHERE
