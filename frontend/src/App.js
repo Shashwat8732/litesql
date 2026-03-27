@@ -47,6 +47,7 @@ function App() {
       commands: [
         { name: 'INSERT', syntax: "INSERT INTO users VALUES (1, 'Alice', 25)" },
         { name: 'SELECT', syntax: 'SELECT * FROM users' },
+        { name: 'SELECT COLUMNS', syntax: 'SELECT id, name FROM users' },
         { name: 'WHERE', syntax: 'SELECT * FROM users WHERE age > 25' },
         { name: 'UPDATE', syntax: "UPDATE users SET age = 26 WHERE name = 'Alice'" },
         { name: 'DELETE', syntax: 'DELETE FROM users WHERE id = 1' }
